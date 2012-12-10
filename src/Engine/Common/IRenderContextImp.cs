@@ -1,7 +1,7 @@
-﻿using System;
-using System.Drawing;
-using Fusee.Math;
+﻿using Fusee.Math;
+#if !ANDROID
 using JSIL.Meta;
+#endif
 
 namespace Fusee.Engine
 {
@@ -19,19 +19,29 @@ namespace Fusee.Engine
         
         IShaderParam GetShaderParam(IShaderProgramImp shaderProgram, string paramName);
 
+#if !ANDROID
         [JSChangeName("SetShaderParam1f")]
+#endif
         void SetShaderParam(IShaderParam param, float val);
 
+#if !ANDROID
         [JSChangeName("SetShaderParam2f")]
+#endif
         void SetShaderParam(IShaderParam param, float2 val);
 
+#if !ANDROID
         [JSChangeName("SetShaderParam3f")]
+#endif
         void SetShaderParam(IShaderParam param, float3 val);
 
+#if !ANDROID
         [JSChangeName("SetShaderParam4f")]
+#endif
         void SetShaderParam(IShaderParam param, float4 val);
 
+#if !ANDROID
         [JSChangeName("SetShaderParamMtx4f")]
+#endif
         void SetShaderParam(IShaderParam param, float4x4 val);
 
 

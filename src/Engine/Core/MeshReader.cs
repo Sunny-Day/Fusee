@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using Fusee.Math;
 using System.IO;
+#if !ANDROID
 using JSIL.Meta;
+#endif
 
 namespace Fusee.Engine
 {
@@ -15,7 +17,9 @@ namespace Fusee.Engine
         /// <param name="s">string to parse</param>
         /// <returns>A double nuber</returns>
         // TODO: Get rid of this hack
+#if !ANDROID
         [JSExternal]
+#endif
         public static double Double_Parse(string s)
         {
             return double.Parse(s, System.Globalization.CultureInfo.InvariantCulture);

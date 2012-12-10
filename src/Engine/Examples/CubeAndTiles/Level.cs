@@ -1,4 +1,9 @@
-﻿using Fusee.Engine;
+﻿#if ANDROID
+using System.IO;
+using Android.App;
+#endif
+
+using Fusee.Engine;
 using Fusee.Math;
 
 namespace Examples.CubeAndTiles
@@ -47,6 +52,16 @@ namespace Examples.CubeAndTiles
             Backward
         };
 
+#if ANDROID
+        public Activity Activity { get; set; }
+        public Level(RenderContext rc, ShaderProgram sp, Activity activity)
+        {
+            VColorObj = sp.GetShaderParam("vColor");
+            RContext = rc;
+            Activity = activity;
+            ConstructLevel(0);
+        }
+#else
         public Level(RenderContext rc, ShaderProgram sp)
         {
             VColorObj = sp.GetShaderParam("vColor");
@@ -54,7 +69,7 @@ namespace Examples.CubeAndTiles
 
             ConstructLevel(0);
         }
-
+#endif
         public Level(RenderContext rc, ShaderProgram sp, int id)
         {
             VColorObj = sp.GetShaderParam("vColor");
@@ -63,15 +78,28 @@ namespace Examples.CubeAndTiles
             ConstructLevel(id);
         }
 
+
+
         private void ConstructLevel(int id)
         {
             if (_rCube == null)
             {
                 _lvlTmp = LevelTemplates.LvlTmp;
 
+#if ANDROID
+                System.IO.Stream strTile= Activity.Assets.Open("Tile.obj.model");
+                System.IO.TextReader trTile = new StreamReader(strTile);
+                Geometry geoTile = MeshReader.ReadWavefrontObj(trTile);
+                GlobalFieldMesh = geoTile.ToMesh();
+
+                System.IO.Stream strCube = Activity.Assets.Open("Cube.obj.model");
+                System.IO.TextReader trCube = new StreamReader(strCube);
+                Geometry geoCube = MeshReader.ReadWavefrontObj(trCube);
+                GlobalCubeMesh = geoCube.ToMesh();
+#else
                 GlobalFieldMesh = MeshReader.LoadMesh("Assets/Tile.obj.model");
                 GlobalCubeMesh = MeshReader.LoadMesh("Assets/Cube.obj.model");
-
+#endif
                 _camPosition = float4x4.LookAt(0, 0, 3000, 0, 0, 0, 0, 1, 0);
                 _objOrientation = float4x4.CreateRotationX((float)MathHelper.Pi / 2);
 

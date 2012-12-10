@@ -1,4 +1,6 @@
-﻿using JSIL.Meta;
+﻿#if !ANDROID
+using JSIL.Meta;
+#endif
 using System.Diagnostics;
 
 namespace Fusee.Engine
@@ -10,12 +12,16 @@ namespace Fusee.Engine
 
     public static class Diagnostics
     {
+#if !ANDROID
         [JSIgnore]
+#endif
         private static Stopwatch _daWatch;
 
         
         /// Returns high precision timer values in milliseconds.
+#if !ANDROID
         [JSExternal]
+#endif
         public static double Timer
         {
             get
@@ -33,7 +39,9 @@ namespace Fusee.Engine
         /// Log a debug output message to the respective output console.
         /// </summary>
         /// <param name="o">The object to log. Will be converted to a string.</param>
+#if !ANDROID
         [JSExternal]
+#endif
         public static void Log(object o)
         {
             Debug.Print(o.ToString());            

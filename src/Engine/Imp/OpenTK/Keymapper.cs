@@ -1,10 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+#if ANDROID
+using Android.InputMethodServices;
+#else
 using OpenTK.Input;
+#endif
 
 namespace Fusee.Engine
 {
+#if ANDROID
+    internal class Keymapper
+    {
+        
+    }
+#else
     internal class Keymapper : Dictionary<OpenTK.Input.Key, Fusee.Engine.KeyCodes>
+
     {
         /// <summary>
         /// Initializes the map between KeyCodes and OpenTK.Key
@@ -100,4 +111,5 @@ namespace Fusee.Engine
            */
         }
     }
+#endif
 }

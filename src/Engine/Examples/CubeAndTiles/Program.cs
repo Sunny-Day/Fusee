@@ -1,4 +1,9 @@
-﻿using Fusee.Engine;
+﻿using System.Collections.Generic;
+#if ANDROID
+using Android.App;
+#endif
+
+using Fusee.Engine;
 using Fusee.Math;
 
 namespace Examples.CubeAndTiles
@@ -58,6 +63,16 @@ namespace Examples.CubeAndTiles
         private const float RotationSpeed = 10.0f;
         private const float Damping = 0.95f;
 
+#if ANDROID
+        private Activity _activity;          
+#endif
+
+        public CubeAndTiles(Dictionary<string, object> globals = null) : base(globals)
+        {
+#if ANDROID
+            _activity = (Activity) globals["Context"];
+#endif
+        }
 
         // Init()
         public override void Init()
@@ -67,7 +82,11 @@ namespace Examples.CubeAndTiles
             RC.SetShader(sp);
             RC.ClearColor = new float4(0, 0, 0, 1);
 
+#if ANDROID
+            _exampleLevel = new Level(RC, sp, _activity);
+#else
             _exampleLevel = new Level(RC, sp);
+#endif
         }
 
         // RenderAFrame()

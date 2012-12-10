@@ -10,8 +10,9 @@ namespace Fusee.Engine
         double DeltaTime { get; }
 
         void Present();
-
         void Run();
+        void Pause();
+        void Resume();
 
         event EventHandler<InitEventArgs> Init;
         event EventHandler<RenderEventArgs> Render;

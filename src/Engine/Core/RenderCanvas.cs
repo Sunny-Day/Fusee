@@ -1,4 +1,5 @@
-﻿using Fusee.Engine;
+﻿using System.Collections.Generic;
+using Fusee.Engine;
 using Fusee.Math;
 
 namespace Fusee.Engine
@@ -18,9 +19,9 @@ namespace Fusee.Engine
             get { return _in; }
         }
 
-        public RenderCanvas()
+        public RenderCanvas(Dictionary<string, object> globals = null)
         {
-            _canvasImp = ImpFactory.CreateIRenderCanvasImp();
+            _canvasImp = ImpFactory.CreateIRenderCanvasImp(globals);
             _rc = new RenderContext(ImpFactory.CreateIRenderContextImp(_canvasImp));
             _in = new Input(ImpFactory.CreateIInputImp(_canvasImp));
             _canvasImp.Init += delegate(object sender, InitEventArgs args)
@@ -73,6 +74,16 @@ namespace Fusee.Engine
         public void Present()
         {
             _canvasImp.Present();
+        }
+
+        public void Pause()
+        {
+            _canvasImp.Pause();
+        }
+
+        public void Resume()
+        {
+            _canvasImp.Resume();
         }
      }
 }

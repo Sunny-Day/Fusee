@@ -1,6 +1,8 @@
 ﻿using System;
 using Fusee.Engine;
+#if !ANDROID
 using JSIL.Meta;
+#endif
 using Fusee.Math;
 
 namespace Fusee.Engine
@@ -332,31 +334,41 @@ namespace Fusee.Engine
             return _rci.GetShaderParam(program._spi, paramName);
         }
 
+#if !ANDROID
         [JSChangeName("SetShaderParam1f")]
+#endif
         public void SetShaderParam(IShaderParam param, float val)
         {
             _rci.SetShaderParam(param, val);
         }
 
+#if !ANDROID
         [JSChangeName("SetShaderParam2f")]
+#endif
         public void SetShaderParam(IShaderParam param, float2 val)
         {
             _rci.SetShaderParam(param, val);
         }
 
+#if !ANDROID
         [JSChangeName("SetShaderParam3f")]
+#endif
         public void SetShaderParam(IShaderParam param, float3 val)
         {
             _rci.SetShaderParam(param, val);
         }
 
+#if !ANDROID
         [JSChangeName("SetShaderParam4f")]
+#endif
         public void SetShaderParam(IShaderParam param, float4 val)
         {
             _rci.SetShaderParam(param, val);
         }
 
+#if !ANDROID
         [JSChangeName("SetShaderParamMtx4f")]
+#endif
         public void SetShaderParam(IShaderParam param, float4x4 val)
         {
             _rci.SetShaderParam(param, val);

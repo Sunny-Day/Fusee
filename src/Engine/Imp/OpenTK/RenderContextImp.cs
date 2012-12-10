@@ -1,9 +1,14 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+using System.Text;
 using Fusee.Math;
 using OpenTK;
+#if ANDROID
+using OpenTK.Graphics.ES20;
+#else
+using System.Drawing;
+using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL;
+#endif
 
 namespace Fusee.Engine
 {
@@ -64,8 +69,10 @@ namespace Fusee.Engine
             { throw new NotImplementedException(); }
             set 
             {
+#if !ANDROID
                 GL.MatrixMode(MatrixMode.Modelview);
                 unsafe {GL.LoadMatrix((float*)(&value));}
+#endif
             }
         }
 
@@ -75,8 +82,10 @@ namespace Fusee.Engine
             { throw new NotImplementedException(); }
             set
             {
+#if !ANDROID
                 GL.MatrixMode(MatrixMode.Projection);
                 unsafe { GL.LoadMatrix((float*)(&value)); }
+#endif
             }
         }
 
@@ -85,7 +94,13 @@ namespace Fusee.Engine
             get
             {
                 Vector4 ret; 
+#if ANDROID
+                float[] retret = new float[4];
+                GL.GetFloat((All) GetPName.ColorClearValue, retret);
+                ret = new Vector4(retret[0], retret[1], retret[2], retret[3]);
+#else
                 GL.GetFloat(GetPName.ColorClearValue, out ret);
+#endif
                 return new float4(ret.X, ret.Y, ret.Z, ret.W);
             }
             set
@@ -98,9 +113,13 @@ namespace Fusee.Engine
         {
             get
             {
-                float ret;
+                float ret = 0;
+#if ANDROID
+                GL.GetFloat((All)GetPName.DepthClearValue, ref ret);
+#else
                 GL.GetFloat(GetPName.DepthClearValue, out ret);
-                return ret;
+#endif
+                 return ret;
             }
             set
             {
@@ -110,9 +129,35 @@ namespace Fusee.Engine
 
         public IShaderProgramImp CreateShader(string vs, string ps)
         {
-            int statusCode;
-            string info;
+            int statusCode = 0;
 
+#if ANDROID
+            StringBuilder sb = new StringBuilder(512);
+            int vertexObject = GL.CreateShader(All.VertexShader);
+            
+            // Compile vertex shader
+            GL.ShaderSource(vertexObject, 1, new string[]{vs}, (int[])null);
+            GL.CompileShader(vertexObject);
+            int len = 0;
+            GL.GetShaderInfoLog(vertexObject, 512, ref len, sb);
+            GL.GetShader(vertexObject, All.CompileStatus, ref statusCode);
+
+            if (statusCode != 1)
+                throw new ApplicationException(sb.ToString());
+
+            // Compile pixel shader
+            int fragmentObject = GL.CreateShader(All.FragmentShader);
+            GL.ShaderSource(fragmentObject, 1, new string[] { ps }, (int[])null);
+            GL.CompileShader(fragmentObject);
+            /*
+            GL.GetShaderInfoLog(fragmentObject, 512, (int[])null, sb);
+            GL.GetShader(fragmentObject, All.CompileStatus, ref statusCode);
+
+            if (statusCode != 1)
+                throw new ApplicationException(sb.ToString());
+            */
+#else
+            string info;
             int vertexObject = GL.CreateShader(ShaderType.VertexShader);
             int fragmentObject = GL.CreateShader(ShaderType.FragmentShader);
 
@@ -133,7 +178,8 @@ namespace Fusee.Engine
 
             if (statusCode != 1)
                 throw new ApplicationException(info);
-
+#endif
+            
             int program = GL.CreateProgram();
             GL.AttachShader(program, fragmentObject);
             GL.AttachShader(program, vertexObject);
@@ -154,7 +200,11 @@ namespace Fusee.Engine
 
         public void Clear(ClearFlags flags)
         {
+#if ANDROID
+            GL.Clear((int) flags);
+#else
             GL.Clear((ClearBufferMask)flags);
+#endif
         }
 
 
@@ -165,8 +215,21 @@ namespace Fusee.Engine
                 throw new ArgumentException("Vertices must not be null or empty");
             }
 
-            int vboBytes;
+            int vboBytes = 0;
             int vertsBytes = vertices.Length * 3 * sizeof(float);
+#if ANDROID
+            if (((MeshImp)mr).VertexBufferObject == 0)
+                GL.GenBuffers(1, ref ((MeshImp)mr).VertexBufferObject);
+
+            GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).VertexBufferObject);
+            GL.BufferData(All.ArrayBuffer, (IntPtr)(vertsBytes), vertices, All.StaticDraw);
+            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, ref vboBytes);
+            if (vboBytes != vertsBytes)
+                throw new ApplicationException(String.Format(
+                    "Problem uploading vertex buffer to VBO (vertices). Tried to upload {0} bytes, uploaded {1}.",
+                    vertsBytes, vboBytes));
+            GL.BindBuffer(All.ArrayBuffer, 0);
+#else
             if (((MeshImp)mr).VertexBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).VertexBufferObject);
 
@@ -178,6 +241,7 @@ namespace Fusee.Engine
                     "Problem uploading vertex buffer to VBO (vertices). Tried to upload {0} bytes, uploaded {1}.",
                     vertsBytes, vboBytes));
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+#endif
         }
 
 
@@ -188,8 +252,21 @@ namespace Fusee.Engine
                 throw new ArgumentException("Normals must not be null or empty");
             }
 
-            int vboBytes;
+            int vboBytes = 0;
             int normsBytes = normals.Length * 3 * sizeof(float);
+#if ANDROID
+            if (((MeshImp)mr).NormalBufferObject == 0)
+                GL.GenBuffers(1, ref ((MeshImp)mr).NormalBufferObject);
+
+            GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).NormalBufferObject);
+            GL.BufferData(All.ArrayBuffer, (IntPtr)(normsBytes), normals, All.StaticDraw);
+            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, ref vboBytes);
+            if (vboBytes != normsBytes)
+                throw new ApplicationException(String.Format(
+                    "Problem uploading normal buffer to VBO (normals). Tried to upload {0} bytes, uploaded {1}.",
+                    normsBytes, vboBytes));
+            GL.BindBuffer(All.ArrayBuffer, 0);
+#else
             if (((MeshImp)mr).NormalBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).NormalBufferObject);
 
@@ -201,6 +278,7 @@ namespace Fusee.Engine
                     "Problem uploading normal buffer to VBO (normals). Tried to upload {0} bytes, uploaded {1}.",
                     normsBytes, vboBytes));
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+#endif
         }
 
 
@@ -211,8 +289,21 @@ namespace Fusee.Engine
                 throw new ArgumentException("colors must not be null or empty");
             }
 
-            int vboBytes;
+            int vboBytes = 0;
             int colsBytes = colors.Length * sizeof(uint);
+#if ANDROID
+            if (((MeshImp)mr).ColorBufferObject == 0)
+                GL.GenBuffers(1, ref ((MeshImp)mr).ColorBufferObject);
+
+            GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).ColorBufferObject);
+            GL.BufferData(All.ArrayBuffer, (IntPtr)(colsBytes), colors, All.StaticDraw);
+            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, ref vboBytes);
+            if (vboBytes != colsBytes)
+                throw new ApplicationException(String.Format(
+                    "Problem uploading color buffer to VBO (colors). Tried to upload {0} bytes, uploaded {1}.",
+                    colsBytes, vboBytes));
+            GL.BindBuffer(All.ArrayBuffer, 0);
+#else
             if (((MeshImp)mr).ColorBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).ColorBufferObject);
 
@@ -224,6 +315,7 @@ namespace Fusee.Engine
                     "Problem uploading color buffer to VBO (colors). Tried to upload {0} bytes, uploaded {1}.",
                     colsBytes, vboBytes));
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+#endif
         }
         
 
@@ -234,10 +326,23 @@ namespace Fusee.Engine
                 throw new ArgumentException("triangleIndices must not be null or empty");
             }
             ((MeshImp)mr).NElements = triangleIndices.Length;
-            int vboBytes;
+            int vboBytes = 0;
             int trisBytes = triangleIndices.Length * sizeof(short);
 
+#if ANDROID
             if (((MeshImp)mr).ElementBufferObject == 0)
+                GL.GenBuffers(1, ref ((MeshImp)mr).ElementBufferObject);
+            // Upload the   index buffer (elements inside the vertex buffer, not color indices as per the IndexPointer function!)
+            GL.BindBuffer(All.ElementArrayBuffer, ((MeshImp)mr).ElementBufferObject);
+            GL.BufferData(All.ElementArrayBuffer, (IntPtr)(trisBytes), triangleIndices, All.StaticDraw);
+            GL.GetBufferParameter(All.ElementArrayBuffer, All.BufferSize, ref vboBytes);
+            if (vboBytes != trisBytes)
+                throw new ApplicationException(String.Format(
+                    "Problem uploading vertex buffer to VBO (offsets). Tried to upload {0} bytes, uploaded {1}.",
+                    trisBytes, vboBytes));
+            GL.BindBuffer(All.ArrayBuffer, 0);
+#else
+           if (((MeshImp)mr).ElementBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).ElementBufferObject);
             // Upload the   index buffer (elements inside the vertex buffer, not color indices as per the IndexPointer function!)
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((MeshImp)mr).ElementBufferObject);
@@ -248,10 +353,52 @@ namespace Fusee.Engine
                     "Problem uploading vertex buffer to VBO (offsets). Tried to upload {0} bytes, uploaded {1}.",
                     trisBytes, vboBytes));
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+#endif
         }
 
         public void Render(IMeshImp mr)
         {
+#if ANDROID
+            if (((MeshImp)mr).VertexBufferObject != 0)
+            {
+                GL.EnableVertexAttribArray(Helper.VertexAttribLocation);
+                GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).VertexBufferObject);
+                GL.VertexAttribPointer(Helper.VertexAttribLocation, 3, All.Float, false, 0, IntPtr.Zero);
+            }
+            if (((MeshImp)mr).ColorBufferObject != 0)
+            {
+                GL.EnableVertexAttribArray(Helper.ColorAttribLocation);
+                GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).ColorBufferObject);
+                GL.VertexAttribPointer(Helper.ColorAttribLocation, 4, All.UnsignedByte, true, 0, IntPtr.Zero);
+            }
+            if (((MeshImp)mr).NormalBufferObject != 0)
+            {
+                GL.EnableVertexAttribArray(Helper.NormalAttribLocation);
+                GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).NormalBufferObject);
+                GL.VertexAttribPointer(Helper.NormalAttribLocation, 3, All.Float, false, 0, IntPtr.Zero);
+            }
+            if (((MeshImp)mr).ElementBufferObject != 0)
+            {
+                GL.BindBuffer(All.ElementArrayBuffer, ((MeshImp)mr).ElementBufferObject);
+                GL.DrawElements(All.Triangles, ((MeshImp)mr).NElements, All.UnsignedShort, IntPtr.Zero);
+                //GL.DrawArrays(GL.Enums.BeginMode.POINTS, 0, shape.Vertices.Length);
+            }
+            if (((MeshImp)mr).VertexBufferObject != 0)
+            {
+                GL.BindBuffer(All.ArrayBuffer, 0);
+                GL.DisableVertexAttribArray(Helper.VertexAttribLocation);
+            }
+            if (((MeshImp)mr).ColorBufferObject != 0)
+            {
+                GL.BindBuffer(All.ArrayBuffer, 0);
+                GL.DisableVertexAttribArray(Helper.ColorAttribLocation);
+            }
+            if (((MeshImp)mr).NormalBufferObject != 0)
+            {
+                GL.BindBuffer(All.ArrayBuffer, 0);
+                GL.DisableVertexAttribArray(Helper.NormalAttribLocation);
+            }
+#else
             if (((MeshImp)mr).VertexBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(Helper.VertexAttribLocation);
@@ -291,7 +438,7 @@ namespace Fusee.Engine
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
                 GL.DisableVertexAttribArray(Helper.NormalAttribLocation);
             }
-            
+#endif
         }
 
         public IMeshImp CreateMeshImp()
