@@ -55,13 +55,13 @@ namespace Examples.CubeAndTiles
 
         private static float _angleHorz = 0.4f;
         private static float _angleVert = -1.0f;
-        private static float _angleVelHorz, _angleVelVert;
+        private static float _angleVelHorz = 0.05f, _angleVelVert;
 
         private static bool _topView;
         private static bool _keyPressed;
 
         private const float RotationSpeed = 10.0f;
-        private const float Damping = 0.95f;
+        private const float Damping = 1; //0.95f;
 
 #if ANDROID
         private Activity _activity;          
@@ -161,7 +161,7 @@ namespace Examples.CubeAndTiles
             RC.Viewport(0, 0, Width, Height);
 
             var aspectRatio = Width / (float)Height;
-            RC.Projection = float4x4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 1, 10000);
+            RC.Projection = float4x4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 10, 5000);
         }
 
         public static void Main()

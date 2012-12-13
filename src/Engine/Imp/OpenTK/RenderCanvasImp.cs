@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using OpenTK;
 using OpenTK.Graphics;
 #if ANDROID
+using Android.Util;
 using Android.App;
 using Android.Content;
 using OpenTK.Platform.Android;
@@ -153,6 +155,48 @@ namespace Fusee.Engine
 #endif
             _renderCanvasImp.DoInit();
         }
+
+#if ANDROID
+        // This method is called everytime the context needs
+        // to be recreated. Use it to set any egl-specific settings
+        // prior to context creation
+        protected override void CreateFrameBuffer()
+        {
+            ContextRenderingApi = GLVersion.ES2;
+
+            // the default GraphicsMode that is set consists of (16, 16, 0, 0, 2, false)
+            try
+            {
+                GraphicsMode = new AndroidGraphicsMode(16, 16, 0, 0, 2, false);
+                Log.Verbose("Cube And Tiles", "Loading with default settings");
+
+                // if you don't call this, the context won't be created
+                base.CreateFrameBuffer();
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Verbose("GLTriangle", "{0}", ex);
+            }
+
+            // this is a graphics setting that sets everything to the lowest mode possible so
+            // the device returns a reliable graphics setting.
+            try
+            {
+                Log.Verbose("GLTriangle", "Loading with custom Android settings (low mode)");
+                GraphicsMode = new AndroidGraphicsMode(0, 0, 0, 0, 0, false);
+
+                // if you don't call this, the context won't be created
+                base.CreateFrameBuffer();
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Verbose("Cube And Tiles", "{0}", ex);
+            }
+            throw new Exception("Can't load egl, aborting");
+        }
+#endif
 
         protected override void OnUnload(EventArgs e)
         {

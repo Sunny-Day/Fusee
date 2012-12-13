@@ -23,7 +23,12 @@ namespace Fusee.Engine
 
         public IShaderParam GetShaderParam(IShaderProgramImp shaderProgram, string paramName)
         {
+#if ANDROID
+            StringBuilder stringBuilder = new StringBuilder(paramName);
+            int h = GL.GetUniformLocation(((ShaderProgramImp)shaderProgram).Program, stringBuilder);
+#else
             int h = GL.GetUniformLocation(((ShaderProgramImp)shaderProgram).Program, paramName);
+#endif
             return (h == -1) ? null : new ShaderParam {handle = h};
         }
 
@@ -115,7 +120,7 @@ namespace Fusee.Engine
             {
                 float ret = 0;
 #if ANDROID
-                GL.GetFloat((All)GetPName.DepthClearValue, ref ret);
+                GL.GetFloat((All)GetPName.DepthClearValue, out ret);
 #else
                 GL.GetFloat(GetPName.DepthClearValue, out ret);
 #endif
@@ -139,8 +144,8 @@ namespace Fusee.Engine
             GL.ShaderSource(vertexObject, 1, new string[]{vs}, (int[])null);
             GL.CompileShader(vertexObject);
             int len = 0;
-            GL.GetShaderInfoLog(vertexObject, 512, ref len, sb);
-            GL.GetShader(vertexObject, All.CompileStatus, ref statusCode);
+            GL.GetShaderInfoLog(vertexObject, 512, out len, sb);
+            GL.GetShader(vertexObject, All.CompileStatus, out statusCode);
 
             if (statusCode != 1)
                 throw new ApplicationException(sb.ToString());
@@ -200,11 +205,7 @@ namespace Fusee.Engine
 
         public void Clear(ClearFlags flags)
         {
-#if ANDROID
-            GL.Clear((int) flags);
-#else
             GL.Clear((ClearBufferMask)flags);
-#endif
         }
 
 
@@ -219,11 +220,11 @@ namespace Fusee.Engine
             int vertsBytes = vertices.Length * 3 * sizeof(float);
 #if ANDROID
             if (((MeshImp)mr).VertexBufferObject == 0)
-                GL.GenBuffers(1, ref ((MeshImp)mr).VertexBufferObject);
+                GL.GenBuffers(1, out ((MeshImp)mr).VertexBufferObject);
 
             GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).VertexBufferObject);
             GL.BufferData(All.ArrayBuffer, (IntPtr)(vertsBytes), vertices, All.StaticDraw);
-            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, ref vboBytes);
+            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, out vboBytes);
             if (vboBytes != vertsBytes)
                 throw new ApplicationException(String.Format(
                     "Problem uploading vertex buffer to VBO (vertices). Tried to upload {0} bytes, uploaded {1}.",
@@ -256,11 +257,11 @@ namespace Fusee.Engine
             int normsBytes = normals.Length * 3 * sizeof(float);
 #if ANDROID
             if (((MeshImp)mr).NormalBufferObject == 0)
-                GL.GenBuffers(1, ref ((MeshImp)mr).NormalBufferObject);
+                GL.GenBuffers(1, out ((MeshImp)mr).NormalBufferObject);
 
             GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).NormalBufferObject);
             GL.BufferData(All.ArrayBuffer, (IntPtr)(normsBytes), normals, All.StaticDraw);
-            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, ref vboBytes);
+            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, out vboBytes);
             if (vboBytes != normsBytes)
                 throw new ApplicationException(String.Format(
                     "Problem uploading normal buffer to VBO (normals). Tried to upload {0} bytes, uploaded {1}.",
@@ -293,11 +294,11 @@ namespace Fusee.Engine
             int colsBytes = colors.Length * sizeof(uint);
 #if ANDROID
             if (((MeshImp)mr).ColorBufferObject == 0)
-                GL.GenBuffers(1, ref ((MeshImp)mr).ColorBufferObject);
+                GL.GenBuffers(1, out ((MeshImp)mr).ColorBufferObject);
 
             GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).ColorBufferObject);
             GL.BufferData(All.ArrayBuffer, (IntPtr)(colsBytes), colors, All.StaticDraw);
-            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, ref vboBytes);
+            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, out vboBytes);
             if (vboBytes != colsBytes)
                 throw new ApplicationException(String.Format(
                     "Problem uploading color buffer to VBO (colors). Tried to upload {0} bytes, uploaded {1}.",
@@ -331,11 +332,11 @@ namespace Fusee.Engine
 
 #if ANDROID
             if (((MeshImp)mr).ElementBufferObject == 0)
-                GL.GenBuffers(1, ref ((MeshImp)mr).ElementBufferObject);
+                GL.GenBuffers(1, out ((MeshImp)mr).ElementBufferObject);
             // Upload the   index buffer (elements inside the vertex buffer, not color indices as per the IndexPointer function!)
             GL.BindBuffer(All.ElementArrayBuffer, ((MeshImp)mr).ElementBufferObject);
             GL.BufferData(All.ElementArrayBuffer, (IntPtr)(trisBytes), triangleIndices, All.StaticDraw);
-            GL.GetBufferParameter(All.ElementArrayBuffer, All.BufferSize, ref vboBytes);
+            GL.GetBufferParameter(All.ElementArrayBuffer, All.BufferSize, out vboBytes);
             if (vboBytes != trisBytes)
                 throw new ApplicationException(String.Format(
                     "Problem uploading vertex buffer to VBO (offsets). Tried to upload {0} bytes, uploaded {1}.",
