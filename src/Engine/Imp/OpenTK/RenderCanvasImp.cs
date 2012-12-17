@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics;
 #if ANDROID
+using System.Diagnostics;
 using Android.Util;
 using Android.App;
 using Android.Content;
@@ -239,11 +240,38 @@ namespace Fusee.Engine
                 else
                     WindowState = WindowState.Normal;
 #endif
+        }
+
+
+#if ANDROID
+        // Unfortunately FrameEventArgs.Time is zero on Android.
+        // Implemented our own timing using .Net's Diagnostic.Stopwatch here
+        private Stopwatch _daWatch;
+        private double _lastTime;
+        private double Timer
+        {
+            get
+            {
+                if (_daWatch == null)
+                {
+                    _daWatch = new Stopwatch();
+                    _daWatch.Start();
+                    _lastTime = ((double)_daWatch.ElapsedTicks) / ((double)Stopwatch.Frequency);
+                }
+                return ((double)_daWatch.ElapsedTicks) / ((double)Stopwatch.Frequency);
             }
+        }
+#endif
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+#if ANDROID
+            double currentTime = Timer;
+            _deltaTime = currentTime - _lastTime;
+            _lastTime = currentTime;
+#else
             _deltaTime = e.Time;
+#endif
             if (_renderCanvasImp != null)
             {
                 _renderCanvasImp.DoRender();

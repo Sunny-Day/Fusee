@@ -30,7 +30,7 @@ namespace Fusee.Engine
                 {
                     // TODO: Remove this hardcoded hack to OpenTK
 #if ANDROID
-                    _implementor = typeof(Fusee.Engine.Implementor);
+                   _implementor = typeof(Fusee.Engine.Implementor);
 #else
                     Assembly impAsm = Assembly.LoadFrom("Fusee.Engine.Imp.OpenTK.dll");
                     if (impAsm == null)

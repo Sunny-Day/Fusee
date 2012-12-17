@@ -92,6 +92,7 @@ namespace Fusee.Engine
         {
             Point p = _inputImp.GetMousePos();
             float curr = (float) p.x;
+            float delta = (curr - _axesPreviousAbsolute[(int) InputAxis.MouseX]);
             _axes[(int)InputAxis.MouseX] = (curr - _axesPreviousAbsolute[(int)InputAxis.MouseX]) * ((float) deltaTime);
             _axesPreviousAbsolute[(int) InputAxis.MouseX] = curr;
 

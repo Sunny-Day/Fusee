@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenTK;
 #if ANDROID
+using Android.Views;
 using OpenTK.Platform.Android;
 #else
 using OpenTK.Input;
@@ -12,6 +13,8 @@ namespace Fusee.Engine
     {
 #if ANDROID
         protected AndroidGameView _gameWindow;
+        protected int _touchX;
+        protected int _touchY;
 #else
         protected GameWindow _gameWindow;
 #endif
@@ -25,6 +28,9 @@ namespace Fusee.Engine
                 throw new ArgumentException("renderCanvas must be of type RenderCanvasImp", "renderCanvas");
             _gameWindow = ((RenderCanvasImp)renderCanvas)._gameWindow;
 #if ANDROID
+            _gameWindow.Touch += OnGameWinTouch;
+            _touchX = 0;
+            _touchY = 0;
 #else
             _gameWindow.Keyboard.KeyDown += OnGameWinKeyDown;
             _gameWindow.Keyboard.KeyUp += OnGameWinKeyUp;
@@ -42,7 +48,7 @@ namespace Fusee.Engine
         public Point GetMousePos()
         {
 #if ANDROID
-            return new Point{x=0, y=0};
+            return new Point { x = _touchX, y = _touchY };
 #else
             return new Point{x = _gameWindow.Mouse.X, y = _gameWindow.Mouse.Y};
 #endif
@@ -154,6 +160,68 @@ namespace Fusee.Engine
             }
         }
 #endif
-                
+
+#if ANDROID
+        // Contains a very rough translation of touch events to simulated mouse events.
+        // Single finger swipe -> MouseDown, MouseMove, MouseUp
+        // Double finger swipe -> Keypad key into main direction.
+        protected void OnGameWinTouch(object sender, View.TouchEventArgs args)
+        {
+            int curX = (int)args.Event.GetX();
+            int curY = (int)args.Event.GetY();
+            var action = args.Event.Action;
+            switch (action)
+            {
+                case MotionEventActions.Cancel:
+                    break;
+                case MotionEventActions.Down:
+                    _touchX = curX;
+                    _touchY = curY;
+                    if (null != this.MouseButtonDown)
+                        MouseButtonDown(this, new MouseEventArgs
+                        {
+                            Button = MouseButtons.Left,
+                            Position = new Point { x = curX, y = curY }
+                        });   
+                    break;
+                case MotionEventActions.Mask:
+                    break;
+                case MotionEventActions.Move:
+                    _touchX = curX;
+                    _touchY = curY;
+                    break;
+                case MotionEventActions.Outside:
+                    break;
+                case MotionEventActions.Pointer1Down:
+                    break;
+                case MotionEventActions.Pointer1Up:
+                    break;
+                case MotionEventActions.Pointer2Down:
+                    break;
+                case MotionEventActions.Pointer2Up:
+                    break;
+                case MotionEventActions.Pointer3Down:
+                    break;
+                case MotionEventActions.Pointer3Up:
+                    break;
+                case MotionEventActions.PointerIdMask:
+                    break;
+                case MotionEventActions.PointerIdShift:
+                    break;
+                case MotionEventActions.Up:
+                    _touchX = curX;
+                    _touchY = curY;
+                    if (null != this.MouseButtonUp)
+                        MouseButtonUp(this, new MouseEventArgs
+                        {
+                            Button = MouseButtons.Left,
+                            Position = new Point { x = curX, y = curY }
+                        });   
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+#endif
     }
 }

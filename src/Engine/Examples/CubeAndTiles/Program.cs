@@ -61,7 +61,7 @@ namespace Examples.CubeAndTiles
         private static bool _keyPressed;
 
         private const float RotationSpeed = 10.0f;
-        private const float Damping = 1; //0.95f;
+        private const float Damping = 0.95f;
 
 #if ANDROID
         private Activity _activity;          
@@ -124,8 +124,19 @@ namespace Examples.CubeAndTiles
 
                 if (In.IsButtonDown(MouseButtons.Left))
                 {
-                    _angleVelHorz = RotationSpeed*In.GetAxis(InputAxis.MouseX)*(float) DeltaTime;
-                    _angleVelVert = RotationSpeed*In.GetAxis(InputAxis.MouseY)*(float) DeltaTime;
+                    float velX = In.GetAxis(InputAxis.MouseX);
+                    if (velX > 1)
+                        velX = 1;
+                    else if (velX < -1)
+                        velX = -1;
+                    float velY = In.GetAxis(InputAxis.MouseY);
+                    if (velY > 1)
+                        velY = 1;
+                    else if (velY < -1)
+                        velY = -1;
+
+                    _angleVelHorz = RotationSpeed * velX * (float) DeltaTime;
+                    _angleVelVert = RotationSpeed * velY * (float)DeltaTime;
                 }
                 else
                 {
