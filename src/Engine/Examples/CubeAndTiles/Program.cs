@@ -125,15 +125,7 @@ namespace Examples.CubeAndTiles
                 if (In.IsButtonDown(MouseButtons.Left))
                 {
                     float velX = In.GetAxis(InputAxis.MouseX);
-                    if (velX > 1)
-                        velX = 1;
-                    else if (velX < -1)
-                        velX = -1;
                     float velY = In.GetAxis(InputAxis.MouseY);
-                    if (velY > 1)
-                        velY = 1;
-                    else if (velY < -1)
-                        velY = -1;
 
                     _angleVelHorz = RotationSpeed * velX * (float) DeltaTime;
                     _angleVelVert = RotationSpeed * velY * (float)DeltaTime;

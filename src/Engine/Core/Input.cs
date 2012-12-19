@@ -4,6 +4,7 @@ namespace Fusee.Engine
 {
     public class Input
     {
+        private bool _mDown;
         private IInputImp _inputImp;
         private float[] _axes;
         private float[] _axesPreviousAbsolute;
@@ -28,6 +29,7 @@ namespace Fusee.Engine
 
         private void ButtonDown(object sender, MouseEventArgs mea)
         {
+            _mDown = true;
             if (!_buttonsPressed.ContainsKey((int)mea.Button))
                 _buttonsPressed.Add((int)mea.Button, true);
         }
@@ -49,6 +51,7 @@ namespace Fusee.Engine
             _inputImp.KeyUp += KeyUp;
             _inputImp.MouseButtonDown += ButtonDown;
             _inputImp.MouseButtonUp += ButtonUp;
+            _mDown = false;
             
             _axes = new float[(int)InputAxis.LastAxis];
             _axesPreviousAbsolute = new float[(int)InputAxis.LastAxis];
@@ -100,6 +103,16 @@ namespace Fusee.Engine
             curr = (float) p.y;
             _axes[(int)InputAxis.MouseY] = (curr - _axesPreviousAbsolute[(int)InputAxis.MouseY]) * ((float) deltaTime);
            _axesPreviousAbsolute[(int) InputAxis.MouseY] = curr;
+
+            // Set mouse axis speed to zero in the moment the mouse is pressed.
+            // This yields a better behavior in touch scenarios where mouse movement
+            // without a pressed button (== without touching) cannot be tracked.
+            if (_mDown)
+            {
+                _axes[(int) InputAxis.MouseX] = 0;
+                _axes[(int) InputAxis.MouseY] = 0;
+                _mDown = false;
+            }
 
             curr = _inputImp.GetMouseWheelPos();
             _axes[(int)InputAxis.MouseWheel] = (curr - _axesPreviousAbsolute[(int)InputAxis.MouseWheel]) * ((float) deltaTime);

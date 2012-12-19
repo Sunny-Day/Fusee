@@ -15,6 +15,10 @@ namespace Fusee.Engine
         protected AndroidGameView _gameWindow;
         protected int _touchX;
         protected int _touchY;
+        protected int _2ndEnterX;
+        protected int _2ndEnterY;
+        protected int _buttonsDown;
+        protected KeyCodes _currentKey;
 #else
         protected GameWindow _gameWindow;
 #endif
@@ -31,6 +35,7 @@ namespace Fusee.Engine
             _gameWindow.Touch += OnGameWinTouch;
             _touchX = 0;
             _touchY = 0;
+            _buttonsDown = 0;
 #else
             _gameWindow.Keyboard.KeyDown += OnGameWinKeyDown;
             _gameWindow.Keyboard.KeyUp += OnGameWinKeyUp;
@@ -177,6 +182,7 @@ namespace Fusee.Engine
                 case MotionEventActions.Down:
                     _touchX = curX;
                     _touchY = curY;
+                    _buttonsDown++;
                     if (null != this.MouseButtonDown)
                         MouseButtonDown(this, new MouseEventArgs
                         {
@@ -187,18 +193,66 @@ namespace Fusee.Engine
                 case MotionEventActions.Mask:
                     break;
                 case MotionEventActions.Move:
-                    _touchX = curX;
-                    _touchY = curY;
+                    if (_buttonsDown < 2)
+                    {
+                        _touchX = curX;
+                        _touchY = curY;
+                    }
+                    else
+                    {
+                        if (KeyDown != null)
+                        {
+                            // Trigger a key event
+                            int sX = 1;
+                            int sY = 1;
+                            int dX = (int) args.Event.GetX(1) - _2ndEnterX;
+                            int dY = (int) args.Event.GetY(1) - _2ndEnterY;
+                            if (dX < 0)
+                            {
+                                dX = -dX;
+                                sX = -1;
+                            }
+                            if (dY < 0)
+                            {
+                                dY = -dY;
+                                sY = -1;
+                            }
+                            if (dX > 50 || dY > 50)
+                            {
+                                if (dX > dY)
+                                {
+                                    _currentKey = (sX > 0) ? KeyCodes.Up : KeyCodes.Down;
+                                }
+                                else
+                                {
+                                    _currentKey = (sY > 0) ? KeyCodes.Right : KeyCodes.Left;
+                                }
+                                KeyDown(this, new KeyEventArgs() {Alt = false, Control = false, KeyCode = _currentKey});
+                                _2ndEnterX = (int) args.Event.GetX(1);
+                                _2ndEnterY = (int) args.Event.GetY(1);
+                            }
+                        }
+                    }
                     break;
                 case MotionEventActions.Outside:
                     break;
                 case MotionEventActions.Pointer1Down:
+                    _2ndEnterX = (int)args.Event.GetX(1);
+                    _2ndEnterY = (int)args.Event.GetY(1);
+                    _buttonsDown++;
                     break;
                 case MotionEventActions.Pointer1Up:
+                    _buttonsDown--;
                     break;
                 case MotionEventActions.Pointer2Down:
+                    _buttonsDown++;
+                    _2ndEnterX = (int)args.Event.GetX(1);
+                    _2ndEnterY = (int)args.Event.GetY(1);
                     break;
                 case MotionEventActions.Pointer2Up:
+                    if (KeyUp != null)
+                        KeyUp(this, new KeyEventArgs() { Alt = false, Control = false, KeyCode = _currentKey });
+                    _buttonsDown--;
                     break;
                 case MotionEventActions.Pointer3Down:
                     break;
@@ -211,6 +265,7 @@ namespace Fusee.Engine
                 case MotionEventActions.Up:
                     _touchX = curX;
                     _touchY = curY;
+                    _buttonsDown--;
                     if (null != this.MouseButtonUp)
                         MouseButtonUp(this, new MouseEventArgs
                         {
