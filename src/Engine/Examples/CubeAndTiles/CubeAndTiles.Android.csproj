@@ -36,11 +36,12 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;ANDROID</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fusee.Engine.Common.Android">
@@ -51,6 +52,9 @@
     </Reference>
     <Reference Include="Fusee.Engine.Imp.OpenTK.Android">
       <HintPath>..\..\..\..\bin\Debug\Fusee.Engine.Imp.OpenTK.Android.dll</HintPath>
+    </Reference>
+    <Reference Include="Fusee.Engine.Input.Ouya">
+      <HintPath>..\..\..\..\bin\Debug\Fusee.Engine.Input.Ouya.dll</HintPath>
     </Reference>
     <Reference Include="Fusee.Math.Core.Android, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

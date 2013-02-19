@@ -221,11 +221,11 @@ namespace Fusee.Engine
                             {
                                 if (dX > dY)
                                 {
-                                    _currentKey = (sX > 0) ? KeyCodes.Up : KeyCodes.Down;
+                                    _currentKey = (sX > 0) ? KeyCodes.Right : KeyCodes.Left;
                                 }
                                 else
                                 {
-                                    _currentKey = (sY > 0) ? KeyCodes.Right : KeyCodes.Left;
+                                    _currentKey = (sY > 0) ? KeyCodes.Down : KeyCodes.Up;
                                 }
                                 KeyDown(this, new KeyEventArgs() {Alt = false, Control = false, KeyCode = _currentKey});
                                 _2ndEnterX = (int) args.Event.GetX(1);
@@ -242,6 +242,8 @@ namespace Fusee.Engine
                     _buttonsDown++;
                     break;
                 case MotionEventActions.Pointer1Up:
+                    if (KeyUp != null)
+                        KeyUp(this, new KeyEventArgs() { Alt = false, Control = false, KeyCode = _currentKey });
                     _buttonsDown--;
                     break;
                 case MotionEventActions.Pointer2Down:
