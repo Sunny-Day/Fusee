@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Android", "Engine\Common\Common.Android.csproj", "{A460FCA4-282B-4466-B5AF-459AF20C513E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Math", "Math", "{13B4265D-2AE3-4385-9E40-F1445B0CA97A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Math.Core.Android", "Math\Core\Math.Core.Android.csproj", "{8F6641E7-0E72-44BA-95CB-85D4E4F04108}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Android", "Engine\Core\Core.Android.csproj", "{6B2C3C87-5022-4CCA-B330-41743D0FE4B4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Imp", "Imp", "{0321D8D6-5483-4227-B22D-068326124F35}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Graphics", "Graphics", "{953E6B22-B972-4D5E-92A7-4594A99D0456}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTK.Android", "Engine\Imp\OpenTK\OpenTK.Android.csproj", "{77932310-8656-432A-85B7-1386B01E0CC6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{377DCA60-1E34-4B72-963C-C26D73830CDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeAndTiles.Android", "Engine\Examples\CubeAndTiles\CubeAndTiles.Android.csproj", "{054D1A2C-FD66-482B-A103-6AFFE2A94D3E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A460FCA4-282B-4466-B5AF-459AF20C513E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A460FCA4-282B-4466-B5AF-459AF20C513E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A460FCA4-282B-4466-B5AF-459AF20C513E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A460FCA4-282B-4466-B5AF-459AF20C513E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F6641E7-0E72-44BA-95CB-85D4E4F04108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F6641E7-0E72-44BA-95CB-85D4E4F04108}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F6641E7-0E72-44BA-95CB-85D4E4F04108}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F6641E7-0E72-44BA-95CB-85D4E4F04108}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B2C3C87-5022-4CCA-B330-41743D0FE4B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B2C3C87-5022-4CCA-B330-41743D0FE4B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B2C3C87-5022-4CCA-B330-41743D0FE4B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B2C3C87-5022-4CCA-B330-41743D0FE4B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77932310-8656-432A-85B7-1386B01E0CC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77932310-8656-432A-85B7-1386B01E0CC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77932310-8656-432A-85B7-1386B01E0CC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77932310-8656-432A-85B7-1386B01E0CC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{054D1A2C-FD66-482B-A103-6AFFE2A94D3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{054D1A2C-FD66-482B-A103-6AFFE2A94D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{054D1A2C-FD66-482B-A103-6AFFE2A94D3E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{054D1A2C-FD66-482B-A103-6AFFE2A94D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{054D1A2C-FD66-482B-A103-6AFFE2A94D3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{054D1A2C-FD66-482B-A103-6AFFE2A94D3E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8F6641E7-0E72-44BA-95CB-85D4E4F04108} = {13B4265D-2AE3-4385-9E40-F1445B0CA97A}
+		{953E6B22-B972-4D5E-92A7-4594A99D0456} = {0321D8D6-5483-4227-B22D-068326124F35}
+		{77932310-8656-432A-85B7-1386B01E0CC6} = {953E6B22-B972-4D5E-92A7-4594A99D0456}
+		{054D1A2C-FD66-482B-A103-6AFFE2A94D3E} = {377DCA60-1E34-4B72-963C-C26D73830CDB}
+	EndGlobalSection
+EndGlobal
