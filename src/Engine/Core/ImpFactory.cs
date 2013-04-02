@@ -24,17 +24,19 @@ namespace Fusee.Engine
 #endif
         private static Type _audioImplementor;
 
+#if !ANDROID
         [JSIgnore]
+#endif
         private static Type RenderingImplementor
         {
             get
             {
                 if (_renderingImplementor == null)
                 {
-                    // TODO: Remove this hardcoded hack to OpenTK
 #if ANDROID
-                   _renderingImplementor = typeof(Fusee.Engine.Implementor);
+                   _renderingImplementor = typeof(Fusee.Engine.RenderingImplementor);
 #else
+                    // TODO: Remove this hardcoded hack to OpenTK
                     Assembly impAsm = Assembly.LoadFrom("Fusee.Engine.Imp.OpenTK.dll");
                     if (impAsm == null)
                         throw new Exception("Couldn't load implementor assembly (Fusee.Engine.Imp.OpenTK.dll).");
@@ -46,13 +48,18 @@ namespace Fusee.Engine
             }
         }
 
+#if !ANDROID
         [JSIgnore]
+#endif
         private static Type AudioImplementor
         {
             get
             {
                 if (_audioImplementor == null)
                 {
+#if ANDROID
+                    _audioImplementor = typeof (Fusee.Engine.AudioImplementor);
+#else
                     // TODO: Remove this hardcoded hack to NAudio
                     Assembly impAsm = Assembly.LoadFrom("Fusee.Engine.Imp.NAudio.dll");
 
@@ -60,6 +67,7 @@ namespace Fusee.Engine
                         throw new Exception("Couldn't load implementor assembly (Fusee.Engine.Imp.NAudio.dll).");
 
                     _audioImplementor = impAsm.GetType("Fusee.Engine.AudioImplementor");
+#endif
                 }
                 return _audioImplementor;
             }
@@ -68,20 +76,25 @@ namespace Fusee.Engine
         // On Android we'll have only one implementation anyway (probably...)
         public static IRenderCanvasImp CreateIRenderCanvasImp(Dictionary<string, object> globals)
         {
-            return Fusee.Engine.Implementor.CreateRenderCanvasImp(globals);
+            return Fusee.Engine.RenderingImplementor.CreateRenderCanvasImp(globals);
         }
 
 
         public static IRenderContextImp CreateIRenderContextImp(IRenderCanvasImp renderCanvas)
         {
-            return Fusee.Engine.Implementor.CreateRenderContextImp(renderCanvas);
+            return Fusee.Engine.RenderingImplementor.CreateRenderContextImp(renderCanvas);
         }
 
 
         public static IInputImp CreateIInputImp(IRenderCanvasImp renderCanvas)
         {
-            return Fusee.Engine.Implementor.CreateInputImp(renderCanvas);
+            return Fusee.Engine.RenderingImplementor.CreateInputImp(renderCanvas);
         }
+		
+        public static IAudioImp CreateIAudioImp()
+        {
+			return Fusee.Engine.AudioImplementor.CreateAudioImp();
+ 		}
 #else
         [JSExternal]
         public static IRenderCanvasImp CreateIRenderCanvasImp(Dictionary<string, object> globals)
@@ -114,11 +127,8 @@ namespace Fusee.Engine
 
             return (IInputImp)mi.Invoke(null, new object[] { renderCanvas });
         }
-#endif
+		
 
-#if ANDROID
-#error TODO
-#else
         [JSExternal]
         public static IAudioImp CreateIAudioImp()
         {
@@ -128,8 +138,9 @@ namespace Fusee.Engine
                 throw new Exception("Implementor type (" + AudioImplementor.ToString() + ") doesn't contain method CreateAudioImp");
 
             return (IAudioImp)mi.Invoke(null, null);
-        }
+        }		
 #endif
+
 
     }
 }

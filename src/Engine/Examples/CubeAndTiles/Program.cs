@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 #if ANDROID
 using Android.App;
+// using TV.Ouya.Console.Api;
 #endif
 
 using Fusee.Engine;
 using Fusee.Math;
-using TV.Ouya.Console.Api;
+
 
 namespace Examples.CubeAndTiles
 {
@@ -103,9 +104,9 @@ namespace Examples.CubeAndTiles
 
             _anaglyph3D = new Anaglyph3D(RC);
 #if ANDROID
-            _exampleLevel = new Level(RC, sp, _anaglyph3D, _activity);
+            _exampleLevel = new Level(RC, sp, 0, _anaglyph3D, _activity);
 #else
-            _exampleLevel = new Level(RC, sp, _anaglyph3D);
+            _exampleLevel = new Level(RC, sp, 0, _anaglyph3D);
 #endif
         }
 

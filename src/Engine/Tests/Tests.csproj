@@ -36,7 +36,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Math\Core\Core.csproj">
+    <ProjectReference Include="..\..\Math\Core\Math.Core.csproj">
       <Project>{e95fa1c8-6491-4b4b-bbe1-eda6b16b2c6a}</Project>
       <Name>Core</Name>
     </ProjectReference>

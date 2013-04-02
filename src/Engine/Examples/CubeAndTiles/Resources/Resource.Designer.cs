@@ -9,9 +9,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: Android.Runtime.ResourceDesignerAttribute("FuseeMono.Resource", IsApplication=true)]
+[assembly: Android.Runtime.ResourceDesignerAttribute("Fusee.Engine.Resource", IsApplication=true)]
 
-namespace FuseeMono
+namespace Fusee.Engine
 {
 	
 	

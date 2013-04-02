@@ -52,11 +52,17 @@ namespace Fusee.Engine
 #endif
         void SetShaderParam(IShaderParam param, float4x4 val);
 
+#if !ANDROID
         [JSChangeName("SetShaderParamInt")]
+#endif
         void SetShaderParam(IShaderParam param, int val);
 
 
         ITexture CreateTexture(ImageData imageData);
+
+#if ANDROID
+        ImageData LoadImage(System.IO.Stream stream);
+#endif
 
         ImageData LoadImage(String filename);
 

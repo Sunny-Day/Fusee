@@ -36,6 +36,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\Debug\Fusee.Engine.Common.Android.dll</HintPath>
     </Reference>
+    <Reference Include="Fusee.Engine.Imp.AndroidAudio, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bin\Debug\Fusee.Engine.Imp.AndroidAudio.dll</HintPath>
+    </Reference>
     <Reference Include="Fusee.Engine.Imp.OpenTK.Android, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\Debug\Fusee.Engine.Imp.OpenTK.Android.dll</HintPath>
@@ -52,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio.cs" />
     <Compile Include="Cube.cs" />
     <Compile Include="Diagnostics.cs" />
     <Compile Include="Geometry.cs" />
@@ -59,10 +64,14 @@
     <Compile Include="Input.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="MeshReader.cs" />
+    <Compile Include="MoreShaders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderCanvas.cs" />
     <Compile Include="RenderContext.cs" />
+    <Compile Include="ShaderMaterial.cs" />
     <Compile Include="ShaderProgram.cs" />
+    <Compile Include="Shaders.cs" />
+    <Compile Include="Time.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

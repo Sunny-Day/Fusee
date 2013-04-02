@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 #if ANDROID
-using OpenTK.Graphics.ES20
+using System.Text;
+using Android.Graphics;
+using Java.IO;
+using Java.Nio;
+using OpenTK;
+using OpenTK.Graphics.ES20;
 using PixelFormat = OpenTK.Graphics.ES20.PixelFormat;
 #else
 using System.Drawing;
@@ -11,10 +16,10 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 #endif
-using System.IO;
 using System.Runtime.InteropServices;
 using Fusee.Math;
-
+using IOException = System.IO.IOException;
+using String = System.String;
 
 
 namespace Fusee.Engine
@@ -30,6 +35,41 @@ namespace Fusee.Engine
             _shaderParam2TexUnit = new Dictionary<int, int>();
         }
 
+
+#if ANDROID
+        /// <summary>
+        /// Creates a new Bitmap-Object from an image file,
+        /// locks the bits in the memory and makes them available
+        /// for furher action (e.g. creating a texture).
+        /// Method must be called before creating a texture to get the necessary
+        /// ImageData struct.
+        /// </summary>
+        /// <param name="filename">Path to the image file you would like to use as texture.</param>
+        /// <returns>An ImageData object with all necessary information for the texture-binding process.</returns>
+        public ImageData LoadImage(System.IO.Stream stream)
+        {
+            Bitmap bmp = BitmapFactory.DecodeStream(stream);
+
+            int strideAbs = (bmp.RowBytes < 0) ? -bmp.RowBytes : bmp.RowBytes;
+            int bytes = (strideAbs) * bmp.Height;
+            ImageData ret = new ImageData()
+                {
+                    PixelData = new byte[bytes],
+                    Height = bmp.Height,
+                    Width = bmp.Width,
+                    Stride = bmp.RowBytes
+                };
+
+            // Trying to use a bytebuffer as the first approach. A two-way-copy using GetPixels might be the safer procedure here. 
+            ByteBuffer bb = ByteBuffer.Allocate(bytes);
+            bmp.CopyPixelsToBuffer(bb);
+            bb.Rewind();
+            bb.Get(ret.PixelData);
+            return ret;
+        }
+#endif
+
+
         /// <summary>
         /// Creates a new Bitmap-Object from an image file,
         /// locks the bits in the memory and makes them available
@@ -41,6 +81,9 @@ namespace Fusee.Engine
         /// <returns>An ImageData object with all necessary information for the texture-binding process.</returns>
         public ImageData LoadImage(String filename)
         {
+#if ANDROID
+            throw new NotImplementedException("LoadImage(string) not yet implemented on Android. Use LoadImage(stream) instead.");
+#else
             Bitmap bmp = new Bitmap(filename);
             //Flip y-axis, otherwise texture would be upside down
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
@@ -65,6 +108,7 @@ namespace Fusee.Engine
 
             bmp.UnlockBits(bmpData);
             return ret;
+#endif
         }
 
         /// <summary>
@@ -76,6 +120,9 @@ namespace Fusee.Engine
         /// <returns>An ImageData struct containing all necessary information for further processing.</returns>
         public ImageData CreateImage(int width, int height, String bgColor)
         {
+#if ANDROID
+            throw new NotImplementedException("CreateImage() not yet implemented on Android.");
+#else
             Bitmap bmp = new Bitmap(width, height);
             Graphics gfx = Graphics.FromImage(bmp);
             Color color = Color.FromName(bgColor);
@@ -98,14 +145,11 @@ namespace Fusee.Engine
 
             };
 
-
             System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, ret.PixelData, 0, bytes);
 
             bmp.UnlockBits(bmpData);
             return ret;
-
-
-
+#endif
         }
 
         /// <summary>
@@ -121,9 +165,10 @@ namespace Fusee.Engine
         /// <returns>An ImageData struct containing all necessary information for further processing</returns>
         public ImageData TextOnImage(ImageData imgData, String fontName, float fontSize, String text, String textColor, float startPosX, float startPosY)
         {
-
-            GCHandle arrayHandle = GCHandle.Alloc(imgData.PixelData,
-                                   GCHandleType.Pinned);
+#if ANDROID
+            throw new NotImplementedException("TextOnImage() not yet implemented on Android.");
+#else
+            GCHandle arrayHandle = GCHandle.Alloc(imgData.PixelData, GCHandleType.Pinned);
             Bitmap bmp = new Bitmap(imgData.Width, imgData.Height, imgData.Stride, PixelFormat.Format32bppArgb,
                                     arrayHandle.AddrOfPinnedObject());
             Color color = Color.FromName(textColor);
@@ -152,7 +197,7 @@ namespace Fusee.Engine
 
             bmp.UnlockBits(bmpData);
             return imgData;
-
+#endif
         }
 
         /// <summary>
@@ -162,6 +207,17 @@ namespace Fusee.Engine
         /// <returns>An ITexture that can be used for texturing in the shader. In this implementation, the handle is an integer-value which is necessary for OpenTK.</returns>
         public ITexture CreateTexture(ImageData img)
         {
+#if ANDROID
+            int id = GL.GenTexture();
+            GL.BindTexture(All.Texture2D, id);
+            GL.TexImage2D(All.Texture2D, 0, (int)All.Rgba, img.Width, img.Height, 0, All.Rgba /*All.BgraImg*/, All.UnsignedByte, img.PixelData);
+
+            GL.TexParameter(All.Texture2D, All.TextureMinFilter, (int)All.Linear);
+            GL.TexParameter(All.Texture2D, All.TextureMagFilter, (int)All.Linear);
+
+            ITexture texID = new Texture { handle = id };
+            return texID;
+#else
             int id = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, id);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, img.Width, img.Height, 0,
@@ -172,8 +228,8 @@ namespace Fusee.Engine
 
             ITexture texID = new Texture { handle = id };
             return texID;
-
-        }
+#endif
+            }
 
 
 
@@ -199,7 +255,12 @@ namespace Fusee.Engine
         {
             var sp = (ShaderProgramImp)shaderProgram;
             int nParams;
+#if ANDROID
+            GL.GetProgram(sp.Program, All.ActiveUniforms, out nParams);
+#else
             GL.GetProgram(sp.Program, ProgramParameter.ActiveUniforms, out nParams);
+#endif
+
             for (int i = 0; i < nParams; i++)
             {
                 ActiveUniformType t;
@@ -274,9 +335,6 @@ namespace Fusee.Engine
             GL.Uniform1(((ShaderParam)param).handle, val);
         }
 
-
-
-
         /// <summary>
         /// Sets a given Shader Parameter to a created texture
         /// </summary>
@@ -292,8 +350,13 @@ namespace Fusee.Engine
                 _shaderParam2TexUnit[iParam] = texUnit;
             }
             GL.Uniform1(iParam, texUnit);
+#if ANDROID
+            GL.ActiveTexture((All)(All.Texture0 + texUnit));
+            GL.BindTexture(All.Texture2D, ((Texture)texId).handle);
+#else
             GL.ActiveTexture((TextureUnit)(TextureUnit.Texture0 + texUnit));
             GL.BindTexture(TextureTarget.Texture2D, ((Texture)texId).handle);
+#endif
         }
 
         public float4x4 ModelView
@@ -488,10 +551,10 @@ namespace Fusee.Engine
 
             int vboBytes = 0;
             int normsBytes = normals.Length * 3 * sizeof(float);
-#if ANDROID
             if (((MeshImp)mr).NormalBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).NormalBufferObject);
 
+#if ANDROID
             GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).NormalBufferObject);
             GL.BufferData(All.ArrayBuffer, (IntPtr)(normsBytes), normals, All.StaticDraw);
             GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, out vboBytes);
@@ -501,9 +564,6 @@ namespace Fusee.Engine
                     normsBytes, vboBytes));
             GL.BindBuffer(All.ArrayBuffer, 0);
 #else
-            if (((MeshImp)mr).NormalBufferObject == 0)
-                GL.GenBuffers(1, out ((MeshImp)mr).NormalBufferObject);
-
             GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).NormalBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(normsBytes), normals, BufferUsageHint.StaticDraw);
             GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out vboBytes);
@@ -527,6 +587,16 @@ namespace Fusee.Engine
             if (((MeshImp)mr).UVBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp)mr).UVBufferObject);
 
+#if ANDROID
+            GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).UVBufferObject);
+            GL.BufferData(All.ArrayBuffer, (IntPtr)(uvsBytes), uvs, All.StaticDraw);
+            GL.GetBufferParameter(All.ArrayBuffer, All.BufferSize, out vboBytes);
+            if (vboBytes != uvsBytes)
+                throw new ApplicationException(String.Format(
+                    "Problem uploading uv buffer to VBO (uvs). Tried to upload {0} bytes, uploaded {1}.",
+                    uvsBytes, vboBytes));
+            GL.BindBuffer(All.ArrayBuffer, 0);
+#else
             GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).UVBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(uvsBytes), uvs, BufferUsageHint.StaticDraw);
             GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out vboBytes);
@@ -535,6 +605,7 @@ namespace Fusee.Engine
                     "Problem uploading uv buffer to VBO (uvs). Tried to upload {0} bytes, uploaded {1}.",
                     uvsBytes, vboBytes));
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+#endif
         }
 
         public void SetColors(IMeshImp mr, uint[] colors)
@@ -629,7 +700,7 @@ namespace Fusee.Engine
             if (((MeshImp)mr).UVBufferObject != 0)
             {
                 GL.EnableVertexAttribArray(Helper.UvAttribLocation);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, ((MeshImp)mr).UVBufferObject);
+                GL.BindBuffer(All.ArrayBuffer, ((MeshImp)mr).UVBufferObject);
                 GL.VertexAttribPointer(Helper.UvAttribLocation, 2, All.Float, false, 0, IntPtr.Zero);
             }
             if (((MeshImp)mr).NormalBufferObject != 0)
@@ -737,7 +808,12 @@ namespace Fusee.Engine
 
         public void Frustum(double left, double right, double bottom, double top, double zNear, double zFar)
         {
+#if ANDROID
+            // TODO!!
+            throw new NotImplementedException("Implement hand coded Frustum for OpenGL ES!!");
+#else
             GL.Frustum(left, right, bottom, top, zNear, zFar);
-        }
+#endif
+            }
     }
 }

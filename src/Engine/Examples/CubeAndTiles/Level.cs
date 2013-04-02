@@ -66,20 +66,13 @@ namespace Examples.CubeAndTiles
 
 #if ANDROID
         public Activity Activity { get; set; }
-        public Level(RenderContext rc, ShaderProgram sp, Anaglyph3D anaglyph3D, Activity activity)
-            : this(rc, sp, 0, anaglyph3D)
+        public Level(RenderContext rc, ShaderProgram sp, int id, Anaglyph3D anaglyph3D, Activity activity)
         {
 			Activity = activity;
-        }
 #else
-        public Level(RenderContext rc, ShaderProgram sp, Anaglyph3D anaglyph3D)
-            : this(rc, sp, 0, anaglyph3D)
-        {
-
-        }
-#endif
         public Level(RenderContext rc, ShaderProgram sp, int id, Anaglyph3D anaglyph3D)
         {
+#endif
             ObjRandom = new Random();
 
             VColorObj = sp.GetShaderParam("vColor");
@@ -103,31 +96,30 @@ namespace Examples.CubeAndTiles
             if (_rCube != null)
                 return;
 
+            _lvlTmp = LevelTemplates.LvlTmp;
 #if ANDROID
-                System.IO.Stream strTile= Activity.Assets.Open("Tile.obj.model");
-                System.IO.TextReader trTile = new StreamReader(strTile);
-                Geometry geoTile = MeshReader.ReadWavefrontObj(trTile);
-                GlobalFieldMesh = geoTile.ToMesh();
+            System.IO.Stream strTile= Activity.Assets.Open("Tile.obj.model");
+            System.IO.TextReader trTile = new StreamReader(strTile);
+            Geometry geoTile = MeshReader.ReadWavefrontObj(trTile);
+            GlobalFieldMesh = geoTile.ToMesh();
 
-                System.IO.Stream strCube = Activity.Assets.Open("Cube.obj.model");
-                System.IO.TextReader trCube = new StreamReader(strCube);
-                Geometry geoCube = MeshReader.ReadWavefrontObj(trCube);
-                GlobalCubeMesh = geoCube.ToMesh();
-			// TODO 
+            System.IO.Stream strCube = Activity.Assets.Open("Cube.obj.model");
+            System.IO.TextReader trCube = new StreamReader(strCube);
+            Geometry geoCube = MeshReader.ReadWavefrontObj(trCube);
+            GlobalCubeMesh = geoCube.ToMesh();
+			    
             // load textures
-            ImageData imgData = RContext.LoadImage("Assets/tex_stone.jpg");
+            System.IO.Stream strTex = Activity.Assets.Open("tex_stone.jpg");
+            ImageData imgData = RContext.LoadImage(strTex);
             TextureField = RContext.CreateTexture(imgData);
 
-                _startXy = new int[2];
-                _curLvlId = id;
-            imgData = RContext.LoadImage("Assets/tex_cube.jpg");
+            strTex = Activity.Assets.Open("tex_cube.jpg");
+            imgData = RContext.LoadImage(strTex);
             TextureCube = RContext.CreateTexture(imgData);
 #else
             // load meshes
             GlobalFieldMesh = MeshReader.LoadMesh("Assets/Tile.obj.model");
             GlobalCubeMesh = MeshReader.LoadMesh("Assets/Cube.obj.model");
-
-
 
             // load textures
             ImageData imgData = RContext.LoadImage("Assets/tex_stone.jpg");

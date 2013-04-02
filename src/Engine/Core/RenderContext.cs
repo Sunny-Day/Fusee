@@ -145,6 +145,26 @@ namespace Fusee.Engine
             return _rci.CreateTexture(imgData);
         }
 
+#if ANDROID
+        /// <summary>
+        /// Loads an image file from disk and creates a new Bitmap-object out of it.
+        /// </summary>
+        /// <remarks>
+        /// This is the first step for the texturing Process.
+        /// The Bitmap-bits get locked in the memory and are made available for
+        /// further processing. The returned ImageData-Struct can be used in the
+        /// CreateTexture method.
+        /// </remarks>
+        /// <param name="filename">Path to the image file</param>
+        /// <returns>
+        /// An ImageData struct with all necessary information for the texture-binding process.
+        /// </returns>
+        public ImageData LoadImage(System.IO.Stream stream)
+        {
+            return _rci.LoadImage(stream);
+        }
+#endif
+        
         /// <summary>
         /// Loads an image file from disk and creates a new Bitmap-object out of it.
         /// </summary>
@@ -1053,7 +1073,9 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// a given uniform parameter name used in a shader program.
         /// </remarks>
         /// <seealso cref="GetShaderParamList"/>
+#if !ANDROID
         [JSChangeName("SetShaderParamI")]
+#endif
         public void SetShaderParam(IShaderParam param, int val)
         {
             _rci.SetShaderParam(param, val);

@@ -60,6 +60,7 @@
     <Compile Include="RenderContextImp.cs" />
     <Compile Include="ShaderParam.cs" />
     <Compile Include="ShaderProgramImp.cs" />
+    <Compile Include="Texture.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

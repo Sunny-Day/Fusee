@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="05" android:versionName="Preprepre">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="05" android:versionName="ZeroDotFive" package="Examples.CubeAndTiles">
 	<uses-sdk android:targetSdkVersion="8" />
 	<application android:label="Cube And Tiles"></application>
 </manifest>
