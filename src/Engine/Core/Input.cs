@@ -2,8 +2,37 @@
 
 namespace Fusee.Engine
 {
+    /// <summary>
+    /// The Input class provides takes care of al imputs. It is accessible from everywhere.
+    /// E.g. : Input.Instance.IsButtonDown(MouseButtons.Left);
+    /// </summary>
+
+
+
     public class Input
     {
+
+        private static Input _instance;
+
+        internal IInputImp InputImp
+        {
+            set 
+            { 
+                _inputImp = value;
+                _inputImp.KeyDown += KeyDown;
+                _inputImp.KeyUp += KeyUp;
+                _inputImp.MouseButtonDown += ButtonDown;
+                _inputImp.MouseButtonUp += ButtonUp;
+                _axes = new float[(int)InputAxis.LastAxis];
+                _axesPreviousAbsolute = new float[(int)InputAxis.LastAxis];
+                //_keysPressed = new Dictionary<KeyCodes, bool>();
+                //_buttonsPressed = new Dictionary<MouseButtons, bool>();
+                _keysPressed = new Dictionary<int, bool>();
+                _buttonsPressed = new Dictionary<int, bool>();
+                _mDown = false;
+            }
+        }
+
         private bool _mDown;
         private IInputImp _inputImp;
         private float[] _axes;
@@ -43,29 +72,19 @@ namespace Fusee.Engine
         /// <summary>
         /// Create a new instance of the Input class and initialize it with an underlying InputImp instance.
         /// </summary>
-        /// <param name="inputImp">The low-leve interface to the underlying platform specific input system</param>
-        public Input(IInputImp inputImp)
+        public Input()
         {
-            _inputImp = inputImp;
-            _inputImp.KeyDown += KeyDown;
-            _inputImp.KeyUp += KeyUp;
-            _inputImp.MouseButtonDown += ButtonDown;
-            _inputImp.MouseButtonUp += ButtonUp;
-            _mDown = false;
             
-            _axes = new float[(int)InputAxis.LastAxis];
-            _axesPreviousAbsolute = new float[(int)InputAxis.LastAxis];
-            //_keysPressed = new Dictionary<KeyCodes, bool>();
-            //_buttonsPressed = new Dictionary<MouseButtons, bool>();
-            _keysPressed = new Dictionary<int, bool>();
-            _buttonsPressed = new Dictionary<int, bool>();
+            
         }
 
         /// <summary>
         /// Returns the scalar value for the given axis. Typically these values are used as velocities.
         /// </summary>
         /// <param name="axis">The axis for which the value is to be returned.</param>
-        /// <returns>The current deflection of the given axis.</returns>
+        /// <returns>
+        /// The current deflection of the given axis.
+        /// </returns>
         public float GetAxis(InputAxis axis)
         {
             return _axes[(int)axis];
@@ -75,7 +94,9 @@ namespace Fusee.Engine
         /// Check if a given key is pressed during the current frame.
         /// </summary>
         /// <param name="key">The key to check.</param>
-        /// <returns>true if the key is pressed. Otherwise false.</returns>
+        /// <returns>
+        /// true if the key is pressed. Otherwise false.
+        /// </returns>
         public bool IsKeyDown(KeyCodes key)
         {
             return _keysPressed.ContainsKey((int)key);
@@ -85,7 +106,9 @@ namespace Fusee.Engine
         /// Check if a given mouse button is pressed during the current frame.
         /// </summary>
         /// <param name="button">the button to check.</param>
-        /// <returns>true if the button is pressed. Otherwise false.</returns>
+        /// <returns>
+        /// true if the button is pressed. Otherwise false.
+        /// </returns>
         public bool IsButtonDown(MouseButtons button)
         {
             return _buttonsPressed.ContainsKey((int)button);
@@ -117,6 +140,21 @@ namespace Fusee.Engine
             curr = _inputImp.GetMouseWheelPos();
             _axes[(int)InputAxis.MouseWheel] = (curr - _axesPreviousAbsolute[(int)InputAxis.MouseWheel]) * ((float) deltaTime);
             _axesPreviousAbsolute[(int)InputAxis.MouseWheel] = curr;
+        }
+
+        /// <summary>
+        /// Provides the Instance of the Input Class.
+        /// </summary>
+        public static Input Instance
+        {
+            get
+            {
+                if (_instance  == null)
+                {
+                    _instance = new Input();
+                }
+                return _instance;
+            }
         }
     }
 }

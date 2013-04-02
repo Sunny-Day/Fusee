@@ -6,7 +6,8 @@
 	JSIL v0.5.0 build 25310. Until then it was changed and maintained manually.
 */
 
-var $asmThis = JSIL.DeclareAssembly("Fusee.Engine.Imp.WebGL, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null");
+var $WebGLImp = JSIL.DeclareAssembly("Fusee.Engine.Imp.WebGL");
+var $WebAudioImp = JSIL.GetAssembly("Fusee.Engine.Imp.WebAudio");
 var $fuseeCommon = JSIL.GetAssembly("Fusee.Engine.Common");
 
 JSIL.DeclareNamespace("Fusee");
@@ -23,6 +24,18 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.ShaderProgramIm
     $.Field({ Static: false, Public: true }, "Program",$.Object, null);
 });
 
+JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.Texture", true, [], function ($) {
+    $.ImplementInterfaces($fuseeCommon.TypeRef("Fusee.Engine.ITexture"));
+
+    $.Method({ Static: false, Public: true }, ".ctor",
+    new JSIL.MethodSignature(null, []),
+    function _ctor() {
+    }
+  );
+
+    $.Field({ Static: false, Public: true }, "handle", $.Object, null);
+});
+
 JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.ShaderParam", true, [], function ($) {
 
     $.Method({ Static: false, Public: true }, ".ctor",
@@ -32,7 +45,9 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.ShaderParam", t
   );
 
     $.Field({ Static: false, Public: true }, "handle",$.Object, null);
+    $.Field({ Static: false, Public: true }, "id", $.Int32, null);     // to uniquely identify shader parameters
 });
+
 
 JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderCanvasImp", true, [], function ($) {
     //var gl;
@@ -114,6 +129,44 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderCanvasImp
 }
   );
 
+    $.Field({ Static: false, Public: false }, "IRenderCanvasImp_UnLoad", $jsilcore.TypeRef("System.EventHandler`1", [$fuseeCommon.TypeRef("Fusee.Engine.MouseEventArgs")]), function ($) {
+        return null;
+    });
+
+    $.Method({ Static: false, Public: true }, "IRenderCanvasImp_add_UnLoad",
+        new JSIL.MethodSignature(null, [$jsilcore.TypeRef("System.EventHandler`1", [$fuseeCommon.TypeRef("Fusee.Engine.InitEventArgs")])]),
+        function IRenderCanvasImp_add_UnLoad(value) {
+            var eventHandler = this.IRenderCanvasImp_UnLoad;
+            do {
+                var eventHandler2 = eventHandler;
+                var value2 = $jsilcore.System.Delegate.Combine(eventHandler2, value);
+                eventHandler = $jsilcore.System.Threading.Interlocked.CompareExchange$b1($jsilcore.System.EventHandler$b1.Of($fuseeCommon.Fusee.Engine.InitEventArgs))(/* ref */new JSIL.MemberReference(this, "IRenderCanvasImp_UnLoad"), value2, eventHandler2);
+            } while (eventHandler !== eventHandler2);
+        }
+    );
+
+    $.Method({ Static: false, Public: true }, "IRenderCanvasImp_remove_UnLoad",
+        new JSIL.MethodSignature(null, [$jsilcore.TypeRef("System.EventHandler`1", [$fuseeCommon.TypeRef("Fusee.Engine.InitEventArgs")])]),
+        function IRenderCanvasImp_remove_UnLoad(value) {
+            var eventHandler = this.IRenderCanvasImp_UnLoad;
+            do {
+                var eventHandler2 = eventHandler;
+                var value2 = $jsilcore.System.Delegate.Remove(eventHandler2, value);
+                eventHandler = $jsilcore.System.Threading.Interlocked.CompareExchange$b1($jsilcore.System.EventHandler$b1.Of($fuseeCommon.Fusee.Engine.InitEventArgs))(/* ref */new JSIL.MemberReference(this, "IRenderCanvasImp_UnLoad"), value2, eventHandler2);
+            } while (eventHandler !== eventHandler2);
+        }
+    );
+
+
+    $.Method({ Static: false, Public: true }, "DoUnLoad",
+    new JSIL.MethodSignature(null, []),
+    function DoUnLoad() {
+        if (this.IRenderCanvasImp_UnLoad !== null) {
+            this.IRenderCanvasImp_UnLoad(this, (new $fuseeCommon.Fusee.Engine.InitEventArgs()).__Initialize__({
+        }));
+    }
+}
+  );
 
 $.Field({ Static: false, Public: false }, "IRenderCanvasImp_Render", $jsilcore.TypeRef("System.EventHandler`1", [$fuseeCommon.TypeRef("Fusee.Engine.MouseEventArgs")]), function ($) {
     return null;
@@ -246,17 +299,23 @@ $.Property({ Static: false, Public: true }, "IRenderCanvasImp_Width");
 JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextImp", true, [], function ($) {
     $.ImplementInterfaces($fuseeCommon.TypeRef("Fusee.Engine.IRenderContextImp"));
 
-    $.Field({ Static: false, Public: false }, "gl",$.Object, null);
+    $.Field({ Static: false, Public: false }, "gl", $.Object, null);
+    $.Field({ Static: false, Public: false }, "_currentTextureUnit", $.Int32, null);
+    $.Field({ Static: false, Public: false }, "_shaderParam2TexUnit", $.Object, null);
+    $.Field({ Static: false, Public: false }, "_currentShaderParamHandle", $.Int32, null);
+
 
     $.Method({ Static: false, Public: true }, ".ctor",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.RenderCanvasImp")]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.RenderCanvasImp")]),
     function _ctor(renderCanvas) {
         this.gl = document.getElementById("canvas").getContext("experimental-webgl");
         this.gl.enable(this.gl.DEPTH_TEST);
         this.gl.clearColor(0.0, 0.0, 0.2, 1.0);
+        this._currentTextureUnit = 0;
 
     }
   );
+
 
     // <IRenderContextImp Properties implementation>
     // Note: unlike the method interface-implementations, the Property interface-implementations
@@ -327,16 +386,127 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     // </IRenderContextImp Properties implementation>
 
 
+    $.Method({ Static: false, Public: true }, "IRenderContextImp_CreateImage",
+        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.ImageData"), [$.Int32, $.Int32, $.String]),
+        function IRenderContextImp_CreateImage(width, height, bgcolor) {
+
+            var canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            var context = canvas.getContext("2d");
+            context.fillStyle = bgcolor;
+            context.fillRect(0, 0, width, height);
+
+            var myData = context.getImageData(0, 0, width, height);
+            var imageData = new $fuseeCommon.Fusee.Engine.ImageData();
+
+            imageData.Width = width;
+            imageData.Height = height;
+            imageData.Stride = width * 4; //TODO: Adjust pixel-size
+            imageData.PixelData = myData.data;
+
+            isloaded = true;
+            return imageData;
+
+
+        }
+    );
+
+
+    $.Method({ Static: false, Public: true }, "IRenderContextImp_LoadImage",
+        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.ImageData"), [$.String]),
+        function IRenderContextImp_LoadImage(filename) {
+            var image = JSIL.Host.getImage(filename);
+            var canvas = document.createElement("canvas");
+            canvas.width = image.width;
+            canvas.height = image.height;
+            var context = canvas.getContext("2d");
+
+            context.drawImage(image, 0, 0);
+            var myData = context.getImageData(0, 0, image.width, image.height);
+            var imageData = new $fuseeCommon.Fusee.Engine.ImageData();
+            imageData.Width = image.width;
+            imageData.Height = image.height;
+            imageData.Stride = image.width * 4; //TODO: Adjust pixel-size
+            imageData.PixelData = myData.data;
+            isloaded = true;
+            return imageData;
+        }
+    );
+
+    $.Method({ Static: false, Public: true }, "IRenderContextImp_TextOnImage",
+        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.ImageData"), [$fuseeCommon.TypeRef("Fusee.Engine.ImageData"), $.String, $.Int32, $.String, $.String, $.Int32, $.Int32]),
+        function IRenderContextImp_TextOnImage(imgData, fontname, fontsize, text, textcolor, startposx, startposy) {
+
+            var canvas = document.createElement("canvas");
+            canvas.width = imgData.Width;
+            canvas.height = imgData.Height;
+
+            var context = canvas.getContext("2d");
+            var myData = context.createImageData(canvas.width, canvas.height);
+            for (var i = 0; i < imgData.Width * imgData.Height * 4; i++) {
+                myData.data[i] = imgData.PixelData[i];
+            }
+            context.putImageData(myData, 0, 0);
+
+            var font = fontsize + "px " + fontname;
+            context.font = font;
+            context.fillStyle = textcolor;
+            context.textBaseline = "top";
+            context.fillText(text, startposx, startposy);
+
+            var myData2 = context.getImageData(0, 0, canvas.width, canvas.height);
+            imgData.PixelData = myData2.data;
+            isloaded = true;
+
+            return imgData;
+
+        }
+    );
+
+    $.Method({ Static: false, Public: true }, "IRenderContextImp_CreateTexture",
+        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.ITexture"), [$fuseeCommon.TypeRef("Fusee.Engine.ImageData")]),
+        function IRenderContextImp_CreateTexture(img) {
+            var ubyteView = new Uint8Array(img.PixelData);
+
+            var glTexOb = this.gl.createTexture();
+            this.gl.bindTexture(this.gl.TEXTURE_2D, glTexOb);
+            this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, img.Width, img.Height, 0,
+								this.gl.RGBA, this.gl.UNSIGNED_BYTE, ubyteView);
+
+
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+
+            var texRet = new $WebGLImp.Fusee.Engine.Texture();
+            texRet.handle = glTexOb;
+
+            return texRet;
+        }
+    );
+
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_Clear",
     new JSIL.MethodSignature(null, [$asm02.TypeRef("RenderEngine.ClearFlags")]),
     function IRenderContextImp_Clear(flags) {
         this.gl.clear(flags.value);
     }
+    );
+    
+    $.Method({ Static: false, Public: true }, "IRenderContextImp_ColorMask",
+    new JSIL.MethodSignature(null, [$.Boolean, $.Boolean, $.Boolean, $.Boolean]),
+    function IRenderContextImp_ColorMask(red, green, blue, alpha) {
+        this.gl.colorMask(red, green, blue, alpha);
+    }
   );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_CreateShader",
-    new JSIL.MethodSignature($asmThis.TypeRef("Fusee.Engine.ShaderProgramImp"), [$.String, $.String]),
+    new JSIL.MethodSignature($WebGLImp.TypeRef("Fusee.Engine.ShaderProgramImp"), [$.String, $.String]),
     function IRenderContextImp_CreateShader(vs, ps) {
         var vertexObject = this.gl.createShader(this.gl.VERTEX_SHADER);
         var fragmentObject = this.gl.createShader(this.gl.FRAGMENT_SHADER);
@@ -366,31 +536,33 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
         // enable GLSL (ES) shaders to use fuVertex, fuColor and fuNormal attributes
         this.gl.bindAttribLocation(program, $fuseeCommon.Fusee.Engine.Helper.VertexAttribLocation, $fuseeCommon.Fusee.Engine.Helper.VertexAttribName);
         this.gl.bindAttribLocation(program, $fuseeCommon.Fusee.Engine.Helper.ColorAttribLocation, $fuseeCommon.Fusee.Engine.Helper.ColorAttribName);
+        this.gl.bindAttribLocation(program, $fuseeCommon.Fusee.Engine.Helper.UvAttribLocation, $fuseeCommon.Fusee.Engine.Helper.UvAttribName);
         this.gl.bindAttribLocation(program, $fuseeCommon.Fusee.Engine.Helper.NormalAttribLocation, $fuseeCommon.Fusee.Engine.Helper.NormalAttribName);
 
         // Must happen AFTER the bindAttribLocation calls
         this.gl.linkProgram(program);
 
-        var ret = new $asmThis.Fusee.Engine.ShaderProgramImp();
+        var ret = new $WebGLImp.Fusee.Engine.ShaderProgramImp();
         ret.Program = program;
         return ret;
     }
   );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_GetShaderParam",
-    new JSIL.MethodSignature($asmThis.TypeRef("Fusee.Engine.IShaderParam"), [$asmThis.TypeRef("Fusee.Engine.IShaderProgramImp"), $.String]),
+    new JSIL.MethodSignature($WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), [$WebGLImp.TypeRef("Fusee.Engine.IShaderProgramImp"), $.String]),
     function IRenderContextImp_GetShaderParam(program, paramName) {
         var h = this.gl.getUniformLocation(program.Program, paramName);
         if (h == null)
             return null;
-        var ret = new $asmThis.Fusee.Engine.ShaderParam();
+        var ret = new $WebGLImp.Fusee.Engine.ShaderParam();
         ret.handle = h;
+        ret.id = this._currentShaderParamHandle++;
         return ret;
     }
   );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_Render",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IMeshImp")]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp")]),
     function IRenderContextImp_Render(mr) {
 
         if (mr.VertexBufferObject != null) {
@@ -408,6 +580,11 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mr.NormalBufferObject);
             this.gl.vertexAttribPointer($fuseeCommon.Fusee.Engine.Helper.NormalAttribLocation, 3, this.gl.FLOAT, false, 0, 0);
         }
+        if (mr.UVBufferObject != null) {
+            this.gl.enableVertexAttribArray($fuseeCommon.Fusee.Engine.Helper.UvAttribLocation);
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mr.UVBufferObject);
+            this.gl.vertexAttribPointer($fuseeCommon.Fusee.Engine.Helper.UvAttribLocation, 2, this.gl.FLOAT, false, 0, 0);
+        }
         if (mr.ElementBufferObject != null) {
             this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, mr.ElementBufferObject);
             this.gl.drawElements(this.gl.TRIANGLES, mr.NElements, this.gl.UNSIGNED_SHORT, 0);
@@ -422,39 +599,47 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
         if (mr.NormalBufferObject != null) {
             this.gl.disableVertexAttribArray($fuseeCommon.Fusee.Engine.Helper.NormalAttribLocation);
         }
+        if (mr.UVBufferObject != null) {
+            this.gl.disableVertexAttribArray($fuseeCommon.Fusee.Engine.Helper.UvAttribLocation);
+        }
     }
   );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_SetShader",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IShaderProgramImp")]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderProgramImp")]),
     function IRenderContextImp_SetShader(program) {
+        this._currentTextureUnit = 0;
+        this._shaderParam2TexUnit = {};
+
         this.gl.useProgram(program.Program);
     }
   );
 
     $.Method({ Static: false, Public: true }, "SetShaderParam1f",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IShaderParam"), $.Single]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $.Single]),
     function SetShaderParam1f(param, val) {
         this.gl.uniform1f(param.handle, val);
     }
   );
 
     $.Method({ Static: false, Public: true }, "SetShaderParam2f",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IShaderParam"), $asm00.TypeRef("Fusee.Math.float2")]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $asm00.TypeRef("Fusee.Math.float2")]),
     function SetShaderParam2f(param, val) {
-        this.gl.uniform2f(param.handle, val);
+        var flatVector = new Float32Array(val.ToArray());
+        this.gl.uniform2fv(param.handle, flatVector);
     }
   );
 
     $.Method({ Static: false, Public: true }, "SetShaderParam3f",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IShaderParam"), $asm00.TypeRef("Fusee.Math.float3")]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $asm00.TypeRef("Fusee.Math.float3")]),
     function SetShaderParam3f(param, val) {
-        this.gl.uniform3f(param.handle, val);
+        var flatVector = new Float32Array(val.ToArray());
+        this.gl.uniform3fv(param.handle, flatVector);
     }
   );
 
     $.Method({ Static: false, Public: true }, "SetShaderParam4f",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IShaderParam"), $asm00.TypeRef("Fusee.Math.float4")]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $asm00.TypeRef("Fusee.Math.float4")]),
     function SetShaderParam4f(param, val) {
         var flatVector = new Float32Array(val.ToArray());
         this.gl.uniform4fv(param.handle, flatVector);
@@ -462,13 +647,40 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
   );
 
     $.Method({ Static: false, Public: true }, "SetShaderParamMtx4f",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IShaderParam"), $asm00.TypeRef("Fusee.Math.float4x4")]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $asm00.TypeRef("Fusee.Math.float4x4")]),
     function SetShaderParamMtx4f(param, val) {
         var flatMatrix = new Float32Array(val.ToArray());
         this.gl.uniformMatrix4fv(param.handle, false, flatMatrix);
     }
   );
 
+    $.Method({ Static: false, Public: true }, "SetShaderParamInt",
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $.Int32]),
+    function SetShaderParamInt(param, val) {
+        this.gl.uniform1i(param.handle, val);
+    }
+  );
+
+    $.Method({ Static: false, Public: true }, "SetShaderParamTexture",
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $WebGLImp.TypeRef("Fusee.Engine.ITexture")]),
+    function SetShaderParamTexture(param, texId) {
+        var iParam = param.handle;
+        var texUnit = -1;
+        var iParamStr = param.id.toString();
+        if (this._shaderParam2TexUnit.hasOwnProperty(iParamStr)) {
+            texUnit = this._shaderParam2TexUnit[iParamStr];
+        }
+        else {
+            texUnit = this._currentTextureUnit++;
+            this._shaderParam2TexUnit[iParamStr] = texUnit;
+        }
+
+        this.gl.uniform1i(iParam, texUnit);
+        this.gl.activeTexture(this.gl.TEXTURE0 + texUnit);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texId.handle);
+
+    }
+  );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_Viewport",
     new JSIL.MethodSignature(null, [
@@ -481,7 +693,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
   );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_SetColors",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$.UInt32])]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$.UInt32])]),
     function IRenderContextImp_SetColors(mr, colors) {
         if (colors == null || colors.length == 0) {
             throw new Exception("colors must not be null or empty");
@@ -499,18 +711,46 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
             flatBuffer[4 * i + 1] = ((colors[i] >> 8) & 0xFF) / 255.0;
             flatBuffer[4 * i + 2] = ((colors[i] >> 16) & 0xFF) / 255.0;
             flatBuffer[4 * i + 3] = ((colors[i] >> 24) & 0xFF) / 255.0;
-        }
 
+
+        }
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mr.ColorBufferObject);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, flatBuffer, this.gl.STATIC_DRAW);
         vboBytes = this.gl.getBufferParameter(this.gl.ARRAY_BUFFER, this.gl.BUFFER_SIZE);
         if (vboBytes != colsBytes)
-            throw new Exception("Problem uploading color buffer to VBO (colors). Tried to upload " + colsBytes + " bytes, uploaded " + vboBytes + ".");
+            throw new Exception("Problem uploading Color buffer to VBO (Colors). Tried to upload " + ColsBytes + " bytes, uploaded " + vboBytes + ".");
+    }
+  );
+
+    $.Method({ Static: false, Public: true }, "IRenderContextImp_SetUVs",
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$.UInt32])]),
+    function IRenderContextImp_SetUVs(mr, uvs) {
+        if (uvs == null || uvs.length == 0) {
+            throw new Exception("UVs must not be null or empty");
+        }
+
+        var UvBytes;
+        var UvBytes = uvs.length * 2 * 4;
+        if (mr.UVBufferObject == null)
+            mr.UVBufferObject = this.gl.createBuffer();
+
+        var nInts = uvs.length;
+        var flatBuffer = new Float32Array(uvs.length * 2);
+        for (var i = 0; i < uvs.length; i++) {
+            flatBuffer[2 * i + 0] = uvs[i].x;
+            flatBuffer[2 * i + 1] = uvs[i].y;
+        }
+
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mr.UVBufferObject);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, flatBuffer, this.gl.STATIC_DRAW);
+        vboBytes = this.gl.getBufferParameter(this.gl.ARRAY_BUFFER, this.gl.BUFFER_SIZE);
+        if (vboBytes != UvBytes)
+            throw new Exception("Problem uploading UV buffer to VBO (UVs). Tried to upload " + UvBytes + " bytes, uploaded " + UvBytes + ".");
     }
   );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_SetNormals",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$asm00.TypeRef("Fusee.Math.float3")])]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$asm00.TypeRef("Fusee.Math.float3")])]),
     function IRenderContextImp_SetNormals(mr, normals) {
         if (normals == null || normals.length == 0) {
             throw new Exception("Normals must not be null or empty");
@@ -538,7 +778,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
   );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_SetTriangles",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$.Int16])]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$.Int16])]),
     function IRenderContextImp_SetTriangles(mr, triangleIndices) {
         if (triangleIndices == null || triangleIndices.length == 0) {
             throw new Exception("triangleIndices must not be null or empty");
@@ -566,7 +806,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
   );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_SetVertices",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$asm00.TypeRef("Fusee.Math.float3")])]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$asm00.TypeRef("Fusee.Math.float3")])]),
     function IRenderContextImp_SetVertices(mr, vertices) {
         if (vertices == null || vertices.length == 0) {
             throw new Exception("vertices must not be null or empty");
@@ -595,9 +835,9 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
 
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_CreateMeshImp",
-    new JSIL.MethodSignature($asmThis.TypeRef("Fusee.Engine.IMeshImp"), []),
+    new JSIL.MethodSignature($WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), []),
     function IRenderContextImp_CreateMeshImp() {
-        return new $asmThis.Fusee.Engine.MeshImp();
+        return new $WebGLImp.Fusee.Engine.MeshImp();
     }
   );
 
@@ -609,6 +849,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.MeshImp", true,
 
     $.Field({ Static: false, Public: true }, "VertexBufferObject",$.Object, null);
     $.Field({ Static: false, Public: true }, "NormalBufferObject",$.Object, null);
+    $.Field({ Static: false, Public: true }, "UVBufferObject",$.Object, null);
     $.Field({ Static: false, Public: true }, "ColorBufferObject",$.Object, null);
     $.Field({ Static: false, Public: true }, "ElementBufferObject",$.Object, null);
     $.Field({ Static: false, Public: true }, "NElements", $.Int32, null);
@@ -630,6 +871,13 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.MeshImp", true,
     new JSIL.MethodSignature($.Boolean, []),
     function get_NormalsSet() {
         return this.NormalBufferObject != null;
+    }
+  );
+    
+    $.Method({ Static: false, Public: true }, "IMeshImp_get_UVsSet",
+    new JSIL.MethodSignature($.Boolean, []),
+    function get_UVsSet() {
+        return this.UVBufferObject != null;
     }
   );
 
@@ -660,6 +908,13 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.MeshImp", true,
         this.NormalBufferObject = null;
     }
   );
+    
+     $.Method({ Static: false, Public: true }, "InvalidateUVs",
+    new JSIL.MethodSignature(null, []),
+    function InvalidateUVs() {
+        this.UVBufferObject = null;
+    }
+  );
 
     $.Method({ Static: false, Public: true }, "InvalidateTriangles",
     new JSIL.MethodSignature(null, []),
@@ -679,6 +934,8 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.MeshImp", true,
     $.Property({ Static: false, Public: true }, "ColorsSet");
 
     $.Property({ Static: false, Public: true }, "NormalsSet");
+    
+    $.Property({ Static: false, Public: true }, "UVsSet");
 
     $.Property({ Static: false, Public: true }, "TrianglesSet");
 
@@ -930,7 +1187,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.InputImp", true
 
 
     $.Method({ Static: false, Public: true }, ".ctor",
-    new JSIL.MethodSignature(null, [$asmThis.TypeRef("Fusee.Engine.RenderCanvasImp")]),
+    new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.RenderCanvasImp")]),
     function _ctor(renderCanvas) {
 
         if (renderCanvas == null)
@@ -961,29 +1218,35 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.InputImp", true
     });
 });
 
-
 JSIL.ImplementExternals("Fusee.Engine.ImpFactory", function ($) {
 
 
     $.Method({ Static: true, Public: true }, "CreateIInputImp",
         new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IInputImp"), [$fuseeCommon.TypeRef("Fusee.Engine.IRenderCanvasImp")]),
             function ImpFactory_CreateIInputImp(renderCanvasImp) {
-                return new $asmThis.Fusee.Engine.InputImp(renderCanvasImp);
+                return new $WebGLImp.Fusee.Engine.InputImp(renderCanvasImp);
             }
     );
 
     $.Method({ Static: true, Public: true }, "CreateIRenderCanvasImp",
         new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IRenderCanvasImp"), []),
-            function ImpFactory_CreateIRenderCanvasImp(renderCanvasImp) {
-				// return new $asmThis.Fusee.Engine.TheEmptyDummyClass
-                return new $asmThis.Fusee.Engine.RenderCanvasImp();
+            function ImpFactory_CreateIRenderCanvasImp() {
+				// return new $WebGLImp.Fusee.Engine.TheEmptyDummyClass
+                return new $WebGLImp.Fusee.Engine.RenderCanvasImp();
             }
     );
 
     $.Method({ Static: true, Public: true }, "CreateIRenderContextImp",
         new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IRenderContextImp"), [$fuseeCommon.TypeRef("Fusee.Engine.IRenderCanvasImp")]),
             function ImpFactory_CreateIRenderContextImp(renderCanvasImp) {
-                return new $asmThis.Fusee.Engine.RenderContextImp(renderCanvasImp);
+                return new $WebGLImp.Fusee.Engine.RenderContextImp(renderCanvasImp);
+            }
+    );
+	
+	$.Method({ Static: true, Public: true }, "CreateIAudioImp",
+        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IAudioImp"), []),
+            function ImpFactory_CreateIAudioImp() {
+                return new $WebAudioImp.Fusee.Engine.WebAudioImp();
             }
     );
 

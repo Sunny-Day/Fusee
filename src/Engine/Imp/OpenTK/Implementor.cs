@@ -3,7 +3,7 @@
 namespace Fusee.Engine
 {
     // This class is instantiated dynamically (by reflection)
-    public class Implementor
+    public class RenderingImplementor
     {
         public static IRenderCanvasImp CreateRenderCanvasImp(Dictionary<string, object> globals)
         {
@@ -19,6 +19,5 @@ namespace Fusee.Engine
         {
             return new InputImp(rci);
         }
-
     }
 }

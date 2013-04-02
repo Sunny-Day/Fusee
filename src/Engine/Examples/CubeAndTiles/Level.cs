@@ -1,4 +1,6 @@
-﻿#if ANDROID
+﻿using System;
+
+#if ANDROID
 using System.IO;
 using Android.App;
 #endif
@@ -11,7 +13,13 @@ namespace Examples.CubeAndTiles
     public class Level
     {
         internal IShaderParam VColorObj { get; private set; }
+        internal IShaderParam VTextureObj { get; private set; }
+        private readonly IShaderParam _vUseAnaglyph;
+
         internal RenderContext RContext { get; private set; }
+
+        private readonly Anaglyph3D _anaglyph3D;
+        internal bool UseAnaglyph3D;
 
         private RollingCube _rCube;
         private Field[,] _levelFeld;
@@ -22,15 +30,19 @@ namespace Examples.CubeAndTiles
         private int _curLvlId;
         private LevelStates _lvlState;
 
-        private float4x4 _camPosition;
+        private int _camPosition;
         private float4x4 _camTranslation;
         private float4x4 _objOrientation;
         private float4x4 _mtxRot;
-
+        
         internal Mesh GlobalFieldMesh { get; private set; }
+        internal ITexture TextureField { get; private set; }
+
         internal Mesh GlobalCubeMesh { get; private set; }
+        internal ITexture TextureCube { get; private set; }
 
         internal float LvlDeltaTime { get; private set; }
+        internal Random ObjRandom { get; private set; }
 
         // array for level files
         private int[][,] _lvlTmp;
@@ -54,27 +66,33 @@ namespace Examples.CubeAndTiles
 
 #if ANDROID
         public Activity Activity { get; set; }
-        public Level(RenderContext rc, ShaderProgram sp, Activity activity)
+        public Level(RenderContext rc, ShaderProgram sp, Anaglyph3D anaglyph3D, Activity activity)
+            : this(rc, sp, 0, anaglyph3D)
         {
-            VColorObj = sp.GetShaderParam("vColor");
-            RContext = rc;
-            Activity = activity;
-            ConstructLevel(0);
+			Activity = activity;
         }
 #else
-        public Level(RenderContext rc, ShaderProgram sp)
+        public Level(RenderContext rc, ShaderProgram sp, Anaglyph3D anaglyph3D)
+            : this(rc, sp, 0, anaglyph3D)
         {
-            VColorObj = sp.GetShaderParam("vColor");
-            RContext = rc;
 
-            ConstructLevel(0);
         }
 #endif
-        public Level(RenderContext rc, ShaderProgram sp, int id)
+        public Level(RenderContext rc, ShaderProgram sp, int id, Anaglyph3D anaglyph3D)
         {
+            ObjRandom = new Random();
+
             VColorObj = sp.GetShaderParam("vColor");
+            VTextureObj = sp.GetShaderParam("vTexture");
+
             RContext = rc;
 
+            _anaglyph3D = anaglyph3D;
+            UseAnaglyph3D = false;
+
+            _vUseAnaglyph = sp.GetShaderParam("vUseAnaglyph");
+            RContext.SetShaderParam(_vUseAnaglyph, UseAnaglyph3D ? 1 : 0);
+            
             ConstructLevel(id);
         }
 
@@ -82,9 +100,8 @@ namespace Examples.CubeAndTiles
 
         private void ConstructLevel(int id)
         {
-            if (_rCube == null)
-            {
-                _lvlTmp = LevelTemplates.LvlTmp;
+            if (_rCube != null)
+                return;
 
 #if ANDROID
                 System.IO.Stream strTile= Activity.Assets.Open("Tile.obj.model");
@@ -96,20 +113,41 @@ namespace Examples.CubeAndTiles
                 System.IO.TextReader trCube = new StreamReader(strCube);
                 Geometry geoCube = MeshReader.ReadWavefrontObj(trCube);
                 GlobalCubeMesh = geoCube.ToMesh();
-#else
-                GlobalFieldMesh = MeshReader.LoadMesh("Assets/Tile.obj.model");
-                GlobalCubeMesh = MeshReader.LoadMesh("Assets/Cube.obj.model");
-#endif
-                _camPosition = float4x4.LookAt(0, 0, 3000, 0, 0, 0, 0, 1, 0);
-                _objOrientation = float4x4.CreateRotationX((float)MathHelper.Pi / 2);
-
-                _rCube = new RollingCube(this);
+			// TODO 
+            // load textures
+            ImageData imgData = RContext.LoadImage("Assets/tex_stone.jpg");
+            TextureField = RContext.CreateTexture(imgData);
 
                 _startXy = new int[2];
                 _curLvlId = id;
+            imgData = RContext.LoadImage("Assets/tex_cube.jpg");
+            TextureCube = RContext.CreateTexture(imgData);
+#else
+            // load meshes
+            GlobalFieldMesh = MeshReader.LoadMesh("Assets/Tile.obj.model");
+            GlobalCubeMesh = MeshReader.LoadMesh("Assets/Cube.obj.model");
 
-                LoadLevel(id);
-            }
+
+
+            // load textures
+            ImageData imgData = RContext.LoadImage("Assets/tex_stone.jpg");
+            TextureField = RContext.CreateTexture(imgData);
+
+            imgData = RContext.LoadImage("Assets/tex_cube.jpg");
+            TextureCube = RContext.CreateTexture(imgData);
+#endif
+            // camera
+            _camPosition = 3000;
+            _objOrientation = float4x4.CreateRotationX(MathHelper.Pi/2);
+
+            // create cube and set vars
+            _rCube = new RollingCube(this);
+
+            _startXy = new int[2];
+            _curLvlId = id;
+
+            // load level
+            LoadLevel(id);
         }
 
         private void LoadLevel(int id)
@@ -218,7 +256,6 @@ namespace Examples.CubeAndTiles
                         DeadLevel();
                         SetDeadField(curX, curY);
                     }
-
                 }
             }
         }
@@ -291,17 +328,41 @@ namespace Examples.CubeAndTiles
             LvlDeltaTime = (float) dTime;
             _mtxRot = mtxRot;
 
-            foreach (var feld in _levelFeld)
-                if (feld != null)
-                    feld.Render(_objOrientation);
+            RContext.SetShaderParam(_vUseAnaglyph, UseAnaglyph3D ? 1 : 0);
 
-            if (_rCube != null)
-                _rCube.RenderCube();
+            for (int x = 0; x < 2; x++)
+            {
+                if (UseAnaglyph3D)
+                    _anaglyph3D.SwitchEye();
+
+                var renderOnly = UseAnaglyph3D && _anaglyph3D.IsLeftEye;
+
+                foreach (var feld in _levelFeld)
+                    if (feld != null)
+                        feld.Render(_objOrientation, renderOnly);
+
+                if (_rCube != null)
+                    _rCube.RenderCube(renderOnly);
+
+                if (!UseAnaglyph3D)
+                    break;
+            }
+
+            _anaglyph3D.NormalMode();
+        }
+
+        public void ZoomCamera(int val)
+        {
+            _camPosition = Math.Min(3000, Math.Max(1500, _camPosition - val));
         }
 
         public float4x4 AddCameraTrans(float4x4 mod)
         {
-            return mod * _camTranslation * _mtxRot * _camPosition;
+            var lookAt = UseAnaglyph3D
+                         ? _anaglyph3D.LookAt3D(0, 0, _camPosition, 0, 0, 0, 0, 1, 0)
+                         : float4x4.LookAt(0, 0, _camPosition, 0, 0, 0, 0, 1, 0);
+
+            return mod*_camTranslation*_mtxRot*lookAt;
         }
 
         private static bool OutOfBounds(int x, int y, Field[,] array)

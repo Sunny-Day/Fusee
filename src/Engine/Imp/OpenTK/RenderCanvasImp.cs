@@ -31,17 +31,21 @@ namespace Fusee.Engine
         public double DeltaTime
         {
             get
-            {
+            {            
                 return _gameWindow.DeltaTime; 
             }
         }
 
         internal RenderCanvasGameWindow _gameWindow;
 
-        public RenderCanvasImp(Dictionary<string, object> globals)
-        {
+        public RenderCanvasImp (Dictionary<string, object> globals)
+		{
             _globals = globals;
-            _gameWindow = new RenderCanvasGameWindow(this, _globals);
+			try {
+				_gameWindow = new RenderCanvasGameWindow (this, true, _globals);
+			} catch {
+				_gameWindow = new RenderCanvasGameWindow (this, false, _globals);
+			}
         }
 
         public void Present()
@@ -78,6 +82,8 @@ namespace Fusee.Engine
         }
 
         public event EventHandler<InitEventArgs> Init;
+        public event EventHandler<InitEventArgs> UnLoad; 
+
         public event EventHandler<RenderEventArgs> Render;
         public event EventHandler<ResizeEventArgs> Resize;
 
@@ -85,6 +91,12 @@ namespace Fusee.Engine
         {
             if (Init != null)
                 Init(this, new InitEventArgs());
+        }
+
+        internal void DoUnLoad()
+        {
+            if (UnLoad != null)
+                UnLoad(this, new InitEventArgs());
         }
 
         internal void DoRender()
@@ -113,11 +125,11 @@ namespace Fusee.Engine
             get { return _deltaTime; }
         }
 
-        public RenderCanvasGameWindow(RenderCanvasImp renderCanvasImp, Dictionary<string, object> globals)
+        public RenderCanvasGameWindow(RenderCanvasImp renderCanvasImp, bool antiAliasing, Dictionary<string, object> globals)
 #if ANDROID
             : base((Context) globals["Context"])
 #else
-            : base(1280, 720, new GraphicsMode(32,24,0,8) /*GraphicsMode.Default*/, "Fusee Engine")
+            : base(1280, 720, new GraphicsMode(32,24,0,(antiAliasing) ? 8 : 0) /*GraphicsMode.Default*/, "Fusee Engine")
 #endif
         {
             _renderCanvasImp = renderCanvasImp;
@@ -135,7 +147,7 @@ namespace Fusee.Engine
             string version = GL.GetString(StringName.Version);
 #endif
             int major = (int)version[0];
-            int minor = (int)version[2];
+            // int minor = (int)version[2];
             if (major < 2)
             {
 #if ANDROID
@@ -201,7 +213,7 @@ namespace Fusee.Engine
 
         protected override void OnUnload(EventArgs e)
         {
-
+            _renderCanvasImp.DoUnLoad();
             // if (_renderCanvasImp != null)
             //     _renderCanvasImp.Dispose();      
         }

@@ -5,11 +5,9 @@ using System.Diagnostics;
 
 namespace Fusee.Engine
 {
-    /***
-     * Contains diagnostic and debug helper methods.
-     *
-     */
-
+     /// <summary>
+     /// Contains some mostly static functions for diagnostic purposes.
+     /// </summary>
     public static class Diagnostics
     {
 #if !ANDROID
@@ -18,9 +16,17 @@ namespace Fusee.Engine
         private static Stopwatch _daWatch;
 
         
-        /// Returns high precision timer values in milliseconds.
+        /// <summary>
+        /// High precision timer values.
+        /// </summary>
+        /// <value>
+        /// A double value containing consecutive real time values in milliseconds.
+        /// </value>
+        /// <remarks>
+        /// To measure the elapsed time between two places in code get this value twice and calculate the difference.
+        /// </remarks>
 #if !ANDROID
-        [JSExternal]
+        [JSExternal]      
 #endif
         public static double Timer
         {

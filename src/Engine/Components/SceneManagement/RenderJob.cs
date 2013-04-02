@@ -6,19 +6,18 @@ using Fusee.Math;
 
 namespace Fusee.SceneManagement
 {
+    /// <summary>
+    /// Provides the virtual SubmitWork method.
+    /// </summary>
     public class RenderJob
     {
-        virtual public float4x4 GetMatrix()
-        {
-            return float4x4.Identity;
-        }
-        virtual public Mesh GetMesh()
-        {
-            return null;
-        }
-        virtual public Renderer GetRenderer()
-        {
-            return null;
+        /// <summary>
+        /// The SubmitWork method will be overwritten by a visited Component that "want's" to be rendered.
+        /// Therefore a RenderContext is needed.
+        /// </summary>
+        virtual public void SubmitWork(RenderContext renderContext)
+        { 
+        
         }
 
     }
