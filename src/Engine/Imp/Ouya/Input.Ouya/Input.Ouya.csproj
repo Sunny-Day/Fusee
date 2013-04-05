@@ -9,7 +9,7 @@
     <ProjectTypeGuids>{10368E6C-D01B-4462-8E8B-01FC667A7035};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Input.Ouya</RootNamespace>
+    <RootNamespace>Fusee.Engine</RootNamespace>
     <AssemblyName>Fusee.Engine.Input.Ouya</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v2.2</TargetFrameworkVersion>
@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\..\..\Bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -62,7 +62,9 @@
     <ReferenceJar Include="Jars\jackson-mapper-asl-1.8.4.jar" />
   </ItemGroup>
   <ItemGroup>
-    <InputJar Include="Jars\ouya-sdk.jar" />
+    <InputJar Include="Jars\ouya-sdk.jar">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </InputJar>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Xamarin.Android.Bindings.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

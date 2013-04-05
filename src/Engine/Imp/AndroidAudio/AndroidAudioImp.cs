@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Android.Content;
+using Android.Content.Res;
 
 namespace Fusee.Engine
 {
@@ -11,9 +13,11 @@ namespace Fusee.Engine
     {
         // This is just a stub implementation right now
         // TODO: implement this!
-        
-        public AndroidAudioImp()
+        private Context _androidContext;
+
+        public AndroidAudioImp(Dictionary<string, object> globals)
         {
+            _androidContext =  (Context) globals["Context"];
         }
 
         public void OpenDevice()
@@ -26,7 +30,11 @@ namespace Fusee.Engine
 
         public IAudioStream LoadFile(string fileName, bool streaming)
         {
-            return new AudioStream(fileName, streaming, this);
+            string assetName = fileName.Replace("Assets/", "");
+            assetName = assetName.Replace("assets/", "");
+            AssetFileDescriptor afd  = _androidContext.Assets.OpenFd(assetName);
+
+            return new AudioStream(afd, this);
         }
 
         public void Stop()

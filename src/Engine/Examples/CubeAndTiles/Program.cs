@@ -3,9 +3,78 @@
 using Android.App;
 // using TV.Ouya.Console.Api;
 #endif
-
+using Android.Views;
 using Fusee.Engine;
 using Fusee.Math;
+
+#if OUYA
+enum OuyaController
+{
+ // Field descriptor #59 I
+   BUTTON_O = 96,
+  
+  // Field descriptor #59 I
+   BUTTON_U = 99,
+  
+  // Field descriptor #59 I
+   BUTTON_Y = 100,
+  
+  // Field descriptor #59 I
+   BUTTON_A = 97,
+  
+  // Field descriptor #59 I
+   BUTTON_L1 = 102,
+  
+  // Field descriptor #59 I
+   BUTTON_L2 = 104,
+  
+  // Field descriptor #59 I
+   BUTTON_R1 = 103,
+  
+  // Field descriptor #59 I
+   BUTTON_R2 = 105,
+  
+  // Field descriptor #59 I
+   BUTTON_SYSTEM = 3,
+  
+  // Field descriptor #59 I
+   AXIS_LS_X = 0,
+  
+  // Field descriptor #59 I
+   AXIS_LS_Y = 1,
+  
+  // Field descriptor #59 I
+   AXIS_RS_X = 11,
+  
+  // Field descriptor #59 I
+   AXIS_RS_Y = 14,
+  
+  // Field descriptor #59 I
+   AXIS_L2 = 17,
+  
+  // Field descriptor #59 I
+   AXIS_R2 = 18,
+  
+  // Field descriptor #59 I
+   BUTTON_DPAD_UP = 19,
+  
+  // Field descriptor #59 I
+   BUTTON_DPAD_RIGHT = 22,
+  
+  // Field descriptor #59 I
+   BUTTON_DPAD_DOWN = 20,
+  
+  // Field descriptor #59 I
+   BUTTON_DPAD_LEFT = 21,
+  
+  // Field descriptor #59 I
+   BUTTON_R3 = 107,
+  
+  // Field descriptor #59 I
+   BUTTON_L3 = 106,
+}
+#endif
+
 
 
 namespace Examples.CubeAndTiles
@@ -83,6 +152,11 @@ namespace Examples.CubeAndTiles
         private const float RotationSpeed = 10.0f;
         private const float Damping = 0.95f;
 
+#if OUYA
+        private bool _ouyaL, _ouyaR, _ouyaU, _ouyaD;
+        private float _ouyaHorz, _ouyaVert;
+#endif
+
 #if ANDROID
         private Activity _activity;          
 #endif
@@ -108,8 +182,15 @@ namespace Examples.CubeAndTiles
 #else
             _exampleLevel = new Level(RC, sp, 0, _anaglyph3D);
 #endif
+
+#if OUYA
+            _ouyaL =_ouyaR =_ouyaU =_ouyaD = false;
+            _ouyaHorz =_ouyaVert = 0.0f;
+#endif        
         }
 
+
+        
         // RenderAFrame()
         public override void RenderAFrame()
         {
@@ -161,6 +242,21 @@ namespace Examples.CubeAndTiles
             if (Input.Instance.IsKeyDown(KeyCodes.Down))
                 _exampleLevel.MoveCube(Level.Directions.Backward);
 
+#if OUYA
+            if (_ouyaL)
+                _exampleLevel.MoveCube(Level.Directions.Left);
+
+            if (_ouyaR)
+                _exampleLevel.MoveCube(Level.Directions.Right);
+
+            if (_ouyaU)
+                _exampleLevel.MoveCube(Level.Directions.Forward);
+
+            if (_ouyaD)
+                _exampleLevel.MoveCube(Level.Directions.Backward);
+#endif
+
+
             // mouse
             if (Input.Instance.GetAxis(InputAxis.MouseWheel) > 0)
                 _exampleLevel.ZoomCamera(50);
@@ -173,11 +269,20 @@ namespace Examples.CubeAndTiles
                 _angleVelHorz = RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseX) * (float) Time.Instance.DeltaTime;
                 _angleVelVert = RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseY) * (float) Time.Instance.DeltaTime;
             }
+#if OUYA
+            else if (_ouyaHorz != 0.0f || _ouyaVert != 0.0f)
+            {
+                _angleVelHorz = RotationSpeed * _ouyaHorz * (float)Time.Instance.DeltaTime;
+                _angleVelVert = RotationSpeed * _ouyaVert * (float)Time.Instance.DeltaTime;                
+            }
+#endif
             else
             {
                 _angleVelHorz *= Damping;
                 _angleVelVert *= Damping;
             }
+
+
 
             _angleHorz += _angleVelHorz;
             _angleVert += _angleVelVert;
@@ -201,5 +306,57 @@ namespace Examples.CubeAndTiles
             var app = new CubeAndTiles();
             app.Run();
         }
+
+#if OUYA
+        public bool OnKeyDown(Keycode keyCode, KeyEvent e)
+        {
+            switch ((int)keyCode)
+            {
+                case (int)OuyaController.BUTTON_DPAD_DOWN:
+                    _ouyaD = true;
+                    return true;
+                case (int)OuyaController.BUTTON_DPAD_LEFT:
+                    _ouyaL = true;
+                    return true;
+                case (int)OuyaController.BUTTON_DPAD_UP:
+                    _ouyaU = true;
+                    return true;
+                case (int)OuyaController.BUTTON_DPAD_RIGHT:
+                    _ouyaR = true;
+                    return true;
+            }
+            return false;
+        }
+
+        public bool OnKeyUp(Keycode keyCode, KeyEvent e)
+        {
+            switch ((int)keyCode)
+            {
+                case (int)OuyaController.BUTTON_DPAD_DOWN:
+                    _ouyaD = false;
+                    return true;
+                case (int)OuyaController.BUTTON_DPAD_LEFT:
+                    _ouyaL = false;
+                    return true;
+                case (int)OuyaController.BUTTON_DPAD_UP:
+                    _ouyaU = false;
+                    return true;
+                case (int)OuyaController.BUTTON_DPAD_RIGHT:
+                    _ouyaR = false;
+                    return true;
+            }
+            return false;
+        }
+
+        public bool OnGenericMotionEvent(MotionEvent e)
+        {
+            _ouyaHorz = e.GetAxisValue((Axis)OuyaController.AXIS_RS_X)*0.5f;
+            _ouyaVert = e.GetAxisValue((Axis)OuyaController.AXIS_RS_Y)*0.5f;
+
+            return false;
+            //throw new System.NotImplementedException();
+        }
+#endif
+
     }
 }

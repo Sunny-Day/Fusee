@@ -90,10 +90,10 @@ namespace Fusee.Engine
         {
             return Fusee.Engine.RenderingImplementor.CreateInputImp(renderCanvas);
         }
-		
-        public static IAudioImp CreateIAudioImp()
+
+        public static IAudioImp CreateIAudioImp(Dictionary<string, object> globals)
         {
-			return Fusee.Engine.AudioImplementor.CreateAudioImp();
+			return Fusee.Engine.AudioImplementor.CreateAudioImp(globals);
  		}
 #else
         [JSExternal]

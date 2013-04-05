@@ -39,7 +39,7 @@ namespace Fusee.Engine
 
             Input.Instance.InputImp = ImpFactory.CreateIInputImp(_canvasImp);
 
-            Audio.Instance.AudioImp = ImpFactory.CreateIAudioImp();
+            Audio.Instance.AudioImp = ImpFactory.CreateIAudioImp(globals);
 
             _canvasImp.Init += delegate(object sender, InitEventArgs args)
                                     {

@@ -11,7 +11,7 @@ namespace Examples.CubeAndTiles
     [Activity(Label = "Cube & Tiles", MainLauncher = true, Icon = "@drawable/icon")]
     public class CubeAndTilesAndroidActivity : Activity
     {
-        CubeAndTiles view;
+        CubeAndTiles _view;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -20,22 +20,46 @@ namespace Examples.CubeAndTiles
             var globals = new Dictionary<string, object>();
             globals.Add("Context", this);
 
-            // Create our OpenGL view, and display it
-            view = new CubeAndTiles(globals);
-            view.Run();
-            // SetContentView(view);
+            // Create our OpenGL _view, and display it
+            _view = new CubeAndTiles(globals);
+            _view.Run();
+            // SetContentView(_view);
         }
+
+#if OUYA
+        public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
+        {
+            return _view.OnKeyDown(keyCode,  e);
+        }
+
+        public override bool OnKeyUp(Keycode keyCode, KeyEvent e)
+        {
+            return _view.OnKeyUp(keyCode, e);
+        }
+
+        public override bool OnGenericMotionEvent(MotionEvent e) 
+        {
+            if ((e.Source & Android.Views.InputDevice.SourceClassJoystick) == 0)
+            {
+                //Not a joystick movement, so ignore it.
+                return false;
+            }
+            return _view.OnGenericMotionEvent(e);
+        }
+#endif
+
+
 
         protected override void OnPause()
         {
             base.OnPause();
-            view.Pause();
+            _view.Pause();
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            view.Resume();
+            _view.Resume();
         }
     }
 }
