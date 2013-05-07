@@ -560,6 +560,14 @@ namespace Fusee.Engine
             }
         }
 
+        public void DebugLine(float3 start, float3 end, float4 color)
+        {
+            GL.Begin(BeginMode.Lines);
+            GL.Vertex3(start.x, start.y, start.z);
+            GL.Vertex3(end.x, end.y, end.z);
+            GL.End();
+        }
+
         public IMeshImp CreateMeshImp()
         {
             return new MeshImp();
