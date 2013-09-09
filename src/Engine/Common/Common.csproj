@@ -68,9 +68,9 @@
     <Compile Include="IRenderCanvasImp.cs" />
     <Compile Include="IRenderContextImp.cs" />
     <Compile Include="IShaderParam.cs" />
-    <Compile Include="IShaderProgramImp.cs" />
+    <Compile Include="IShaderResImp.cs" />
     <Compile Include="IAudioImp.cs" />
-    <Compile Include="ITexture.cs" />
+    <Compile Include="ITextureRes.cs" />
     <Compile Include="KeyEventArgs.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MouseEventArgs.cs" />

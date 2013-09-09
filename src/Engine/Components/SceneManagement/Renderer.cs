@@ -27,7 +27,7 @@ namespace Fusee.SceneManagement
 
         }
 
-        public Renderer (ShaderProgram sp)
+        public Renderer (ShaderRes sp)
         {
             material = new Material(sp);
         }
@@ -42,16 +42,16 @@ namespace Fusee.SceneManagement
             this.mesh = mesh;
         }
 
-        public Renderer(Mesh mesh, ShaderProgram sp)
+        public Renderer(Mesh mesh, ShaderRes sp)
         {
             this.mesh = mesh;
             material = new Material(sp);
         }
 
-        public Renderer(Geometry geo, ShaderProgram shaderProgram)
+        public Renderer(Geometry geo, ShaderRes shaderRes)
         {
             mesh = geo.ToMesh();
-            material = new Material(shaderProgram);
+            material = new Material(shaderRes);
         }
         public override void Accept(SceneVisitor sv)
         {

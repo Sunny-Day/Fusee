@@ -7,68 +7,68 @@ using Fusee.Math;
 namespace Fusee.Engine
 {
     /// <summary>
-    /// Contains all pixel and vertex shaders and a method to create a ShaderProgram in Rendercontext.
+    /// Contains all pixel and vertex shaders and a method to create a ShaderRes in Rendercontext.
     /// </summary>
     public static class MoreShaders
     {
 
         /// <summary>
-        /// Creates the shader in RenderContext and returns a ShaderProgram.
+        /// Creates the shader in RenderContext and returns a ShaderRes.
         /// </summary>
         /// <param name="name">ShaderName.</param>
         /// <param name="rc">RenderContext.</param>
         /// <returns></returns>
-        public static ShaderProgram GetShader(string name, RenderContext rc)
+        public static ShaderRes GetShader(string name, RenderContext rc)
         {
             if (name == "simple")
             {
-                ShaderProgram spSimple = rc.CreateShader(Vs, Ps);
+                ShaderRes spSimple = rc.CreateShader(Vs, Ps);
                 return spSimple;
             }
 
             if (name == "texture")
             {
-                ShaderProgram spTexture = rc.CreateShader(VsTexture, PsTexture);
+                ShaderRes spTexture = rc.CreateShader(VsTexture, PsTexture);
                 return spTexture;
             }
 
             if (name == "texture2")
             {
-                ShaderProgram spTexture = rc.CreateShader(VsTexture, PsTexture2);
+                ShaderRes spTexture = rc.CreateShader(VsTexture, PsTexture2);
                 return spTexture;
             }
 
             if (name == "diffuse")
             {
-                ShaderProgram spDiffuse = rc.CreateShader(VsDiffuse, PsDiffuse);
+                ShaderRes spDiffuse = rc.CreateShader(VsDiffuse, PsDiffuse);
                 return spDiffuse;
             }
 
             if (name == "diffuse2")
             {
-                ShaderProgram spDiffuse2 = rc.CreateShader(VsDiffuse2, PsDiffuse2);
+                ShaderRes spDiffuse2 = rc.CreateShader(VsDiffuse2, PsDiffuse2);
                 return spDiffuse2;
             }
 
             if (name == "specular")
             {
-                ShaderProgram spSpecular = rc.CreateShader(VsSpecular, PsSpecular);
+                ShaderRes spSpecular = rc.CreateShader(VsSpecular, PsSpecular);
                 return spSpecular;
             }
 
             if (name == "bump")
             {
-                ShaderProgram spBump = rc.CreateShader(VsBump, PsBump);
+                ShaderRes spBump = rc.CreateShader(VsBump, PsBump);
                 return spBump;
             }
 
             if (name == "oneColor")
             {
-                ShaderProgram spOneColor = rc.CreateShader(VsOneColor, PsOneColor);
+                ShaderRes spOneColor = rc.CreateShader(VsOneColor, PsOneColor);
                 return spOneColor;
             }
 
-            ShaderProgram spOriginal = rc.CreateShader(Vs, Ps);
+            ShaderRes spOriginal = rc.CreateShader(Vs, Ps);
             return spOriginal;
         }
 

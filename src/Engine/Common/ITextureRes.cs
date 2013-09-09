@@ -5,7 +5,7 @@
     ///  The implementation is render-platform specific: e.g. int in OpenGL, 
     ///  ISurface in DirectX, TextureObject in WebGL, ...
     /// </summary>
-    public interface ITexture
+    public interface ITextureRes
     {
     }
 }

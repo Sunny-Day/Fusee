@@ -30,10 +30,10 @@ namespace Examples.CubeAndTiles
         internal float4x4 CamTrans { get; private set; }
 
         internal Mesh GlobalFieldMesh { get; private set; }
-        internal ITexture TextureField { get; private set; }
+        internal ITextureRes TextureResField { get; private set; }
 
         internal Mesh GlobalCubeMesh { get; private set; }
-        internal ITexture TextureCube { get; private set; }
+        internal ITextureRes TextureResCube { get; private set; }
 
         internal Random ObjRandom { get; private set; }
 
@@ -57,12 +57,12 @@ namespace Examples.CubeAndTiles
             Backward,
         };
 
-        public Level(RenderContext rc, ShaderProgram sp, Anaglyph3D anaglyph3D)
+        public Level(RenderContext rc, ShaderRes sp, Anaglyph3D anaglyph3D)
             : this(rc, sp, 0, anaglyph3D)
         {
         }
 
-        public Level(RenderContext rc, ShaderProgram sp, int id, Anaglyph3D anaglyph3D)
+        public Level(RenderContext rc, ShaderRes sp, int id, Anaglyph3D anaglyph3D)
         {
             ObjRandom = new Random();
 
@@ -90,10 +90,10 @@ namespace Examples.CubeAndTiles
 
             // load textures
             var imgData = RContext.LoadImage("Assets/tex_stone.jpg");
-            TextureField = RContext.CreateTexture(imgData);
+            TextureResField = RContext.CreateTexture(imgData);
 
             imgData = RContext.LoadImage("Assets/tex_cube.jpg");
-            TextureCube = RContext.CreateTexture(imgData);
+            TextureResCube = RContext.CreateTexture(imgData);
 
             // camera
             _camPosition = 3000;
@@ -313,13 +313,13 @@ namespace Examples.CubeAndTiles
 
                 var renderOnly = UseAnaglyph3D && _anaglyph3D.IsLeftEye;
 
-                RContext.SetShaderParamTexture(VTextureObj, TextureField);
+                RContext.SetShaderParamTexture(VTextureObj, TextureResField);
 
                 foreach (var feld in _levelFeld)
                     if (feld != null)
                         feld.Render(_objOrientation, renderOnly);
 
-                RContext.SetShaderParamTexture(VTextureObj, TextureCube);
+                RContext.SetShaderParamTexture(VTextureObj, TextureResCube);
 
                 if (_rCube != null)
                     _rCube.RenderCube(renderOnly);

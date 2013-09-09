@@ -149,11 +149,11 @@ namespace Fusee.Engine
         }
 
         /// <summary>
-        /// Creates a new Texture and binds it to the shader.
+        /// Creates a new TextureRes and binds it to the shader.
         /// </summary>
         /// <param name="img">A given ImageData object, containing all necessary information for the upload to the graphics card.</param>
-        /// <returns>An ITexture that can be used for texturing in the shader. In this implementation, the handle is an integer-value which is necessary for OpenTK.</returns>
-        public ITexture CreateTexture(ImageData img)
+        /// <returns>An ITextureRes that can be used for texturing in the shader. In this implementation, the handle is an integer-value which is necessary for OpenTK.</returns>
+        public ITextureRes CreateTexture(ImageData img)
         {
             int id = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, id);
@@ -163,26 +163,26 @@ namespace Fusee.Engine
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Linear);
 
-            ITexture texID = new Texture { handle = id };
+            ITextureRes texID = new TextureRes { handle = id };
             return texID;
         }
 
-        public IShaderParam GetShaderParam(IShaderProgramImp shaderProgram, string paramName)
+        public IShaderParam GetShaderParam(IShaderResImp shaderRes, string paramName)
         {
-            int h = GL.GetUniformLocation(((ShaderProgramImp)shaderProgram).Program, paramName);
+            int h = GL.GetUniformLocation(((ShaderResImp)shaderRes).Program, paramName);
             return (h == -1) ? null : new ShaderParam { handle = h };
         }
 
-        public float GetParamValue(IShaderProgramImp program, IShaderParam param)
+        public float GetParamValue(IShaderResImp res, IShaderParam param)
         {
             float f;
-            GL.GetUniform(((ShaderProgramImp)program).Program, ((ShaderParam)param).handle, out f);
+            GL.GetUniform(((ShaderResImp)res).Program, ((ShaderParam)param).handle, out f);
             return f;
         }
 
-        public IList<ShaderParamInfo> GetShaderParamList(IShaderProgramImp shaderProgram)
+        public IList<ShaderParamInfo> GetShaderParamList(IShaderResImp shaderRes)
         {
-            var sp = (ShaderProgramImp)shaderProgram;
+            var sp = (ShaderResImp)shaderRes;
             int nParams;
             GL.GetProgram(sp.Program, ProgramParameter.ActiveUniforms, out nParams);
             List<ShaderParamInfo> list = new List<ShaderParamInfo>();
@@ -268,8 +268,8 @@ namespace Fusee.Engine
         /// Sets a given Shader Parameter to a created texture
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding</param>
-        /// <param name="texId">An ITexture probably returned from CreateTexture method</param>
-        public void SetShaderParamTexture(IShaderParam param, ITexture texId)
+        /// <param name="texId">An ITextureRes probably returned from CreateTexture method</param>
+        public void SetShaderParamTexture(IShaderParam param, ITextureRes texId)
         {
             int iParam = ((ShaderParam)param).handle;
             int texUnit;
@@ -280,7 +280,7 @@ namespace Fusee.Engine
             }
             GL.Uniform1(iParam, texUnit);
             GL.ActiveTexture((TextureUnit)(TextureUnit.Texture0 + texUnit));
-            GL.BindTexture(TextureTarget.Texture2D, ((Texture)texId).handle);
+            GL.BindTexture(TextureTarget.Texture2D, ((TextureRes)texId).handle);
         }
 
         public float4x4 ModelView
@@ -333,7 +333,7 @@ namespace Fusee.Engine
             }
         }
 
-        public IShaderProgramImp CreateShader(string vs, string ps)
+        public IShaderResImp CreateShader(string vs, string ps)
         {
             int statusCode;
             string info;
@@ -370,16 +370,16 @@ namespace Fusee.Engine
             GL.BindAttribLocation(program, Helper.NormalAttribLocation, Helper.NormalAttribName);
 
             GL.LinkProgram(program); // AAAARRRRRGGGGHHHH!!!! Must be called AFTER BindAttribLocation
-            return new ShaderProgramImp { Program = program };
+            return new ShaderResImp { Program = program };
         }
 
 
-        public void SetShader(IShaderProgramImp program)
+        public void SetShader(IShaderResImp res)
         {
             _currentTextureUnit = 0;
             _shaderParam2TexUnit.Clear();
 
-            GL.UseProgram(((ShaderProgramImp)program).Program);
+            GL.UseProgram(((ShaderResImp)res).Program);
         }
 
         public void Clear(ClearFlags flags)

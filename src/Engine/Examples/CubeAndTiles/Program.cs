@@ -69,8 +69,8 @@ namespace Examples.CubeAndTiles
         private static Level _exampleLevel;
         private static Anaglyph3D _anaglyph3D;
 
-        private ShaderProgram _spAnaglyph;
-        private ShaderProgram _spNonAnaglyph;
+        private ShaderRes _spAnaglyph;
+        private ShaderRes _spNonAnaglyph;
 
         private static float _angleHorz = 0.4f;
         private static float _angleVert = -1.0f;

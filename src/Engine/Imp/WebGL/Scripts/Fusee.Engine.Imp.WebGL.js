@@ -30,18 +30,18 @@ var $ColorUintCtor_S_S_S_S = function () {
 
 
 JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.TheEmptyDummyClass", true, [], function ($) {
-   $.ImplementInterfaces($fuseeCommon.TypeRef("Fusee.Engine.IShaderProgramImp"));
+   $.ImplementInterfaces($fuseeCommon.TypeRef("Fusee.Engine.IShaderResImp"));
      $.Field({ Static: false, Public: false }, "test", $.Object, null);
 });
 
-JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.ShaderProgramImp", true, [], function ($) {
-    $.ImplementInterfaces($fuseeCommon.TypeRef("Fusee.Engine.IShaderProgramImp"));
+JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.ShaderResImp", true, [], function ($) {
+    $.ImplementInterfaces($fuseeCommon.TypeRef("Fusee.Engine.IShaderResImp"));
 
     $.Field({ Static: false, Public: true }, "Program",$.Object, null);
 });
 
-JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.Texture", true, [], function ($) {
-    $.ImplementInterfaces($fuseeCommon.TypeRef("Fusee.Engine.ITexture"));
+JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.TextureRes", true, [], function ($) {
+    $.ImplementInterfaces($fuseeCommon.TypeRef("Fusee.Engine.ITextureRes"));
 
     $.Method({ Static: false, Public: true }, ".ctor",
     new JSIL.MethodSignature(null, []),
@@ -506,7 +506,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_CreateTexture",
-        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.ITexture"), [$fuseeCommon.TypeRef("Fusee.Engine.ImageData")]),
+        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.ITextureRes"), [$fuseeCommon.TypeRef("Fusee.Engine.ImageData")]),
         function IRenderContextImp_CreateTexture(img) {
             var ubyteView = new Uint8Array(img.PixelData);
 
@@ -523,7 +523,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
             this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
             this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
 
-            var texRet = new $WebGLImp.Fusee.Engine.Texture();
+            var texRet = new $WebGLImp.Fusee.Engine.TextureRes();
             texRet.handle = glTexOb;
 
             return texRet;
@@ -546,7 +546,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     );
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_CreateShader",
-        new JSIL.MethodSignature($WebGLImp.TypeRef("Fusee.Engine.ShaderProgramImp"), [$.String, $.String]),
+        new JSIL.MethodSignature($WebGLImp.TypeRef("Fusee.Engine.ShaderResImp"), [$.String, $.String]),
         function IRenderContextImp_CreateShader(vs, ps) {
             var vertexObject = this.gl.createShader(this.gl.VERTEX_SHADER);
             var fragmentObject = this.gl.createShader(this.gl.FRAGMENT_SHADER);
@@ -582,7 +582,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
             // Must happen AFTER the bindAttribLocation calls
             this.gl.linkProgram(program);
 
-            var ret = new $WebGLImp.Fusee.Engine.ShaderProgramImp();
+            var ret = new $WebGLImp.Fusee.Engine.ShaderResImp();
             ret.Program = program;
             return ret;
         }
@@ -596,7 +596,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
 
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_GetShaderParam",
-        new JSIL.MethodSignature($WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), [$WebGLImp.TypeRef("Fusee.Engine.IShaderProgramImp"), $.String]),
+        new JSIL.MethodSignature($WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), [$WebGLImp.TypeRef("Fusee.Engine.IShaderResImp"), $.String]),
         function IRenderContextImp_GetShaderParam(program, paramName) {
             if (program.__ThisTypeId__ != undefined) { //i got program
                 if ($fuseeFirstGetShaderParamCall) {
@@ -658,7 +658,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     };
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_GetShaderParamList",
-        new JSIL.MethodSignature($WebGLImp.TypeRef("System.Collections.Generic.IList`1", [$asm00.TypeRef("Fusee.Engine.ShaderParamInfo")]), [$asm01.TypeRef("Fusee.Engine.IShaderProgramImp")], []),
+        new JSIL.MethodSignature($WebGLImp.TypeRef("System.Collections.Generic.IList`1", [$asm00.TypeRef("Fusee.Engine.ShaderParamInfo")]), [$asm01.TypeRef("Fusee.Engine.IShaderResImp")], []),
         function IRenderContextImp_GetShaderParamList(shaderProgram) {
             var sp = shaderProgram.Program;
             var nParams = this.gl.getProgramParameter(sp, this.gl.ACTIVE_UNIFORMS);
@@ -774,7 +774,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
 
 
     $.Method({ Static: false, Public: true }, "IRenderContextImp_SetShader",
-        new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderProgramImp")]),
+        new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderResImp")]),
         function IRenderContextImp_SetShader(program) {
             this._currentTextureUnit = 0;
             this._shaderParam2TexUnit = {};
@@ -830,7 +830,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     );
 
     $.Method({ Static: false, Public: true }, "SetShaderParamTexture",
-        new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $WebGLImp.TypeRef("Fusee.Engine.ITexture")]),
+        new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IShaderParam"), $WebGLImp.TypeRef("Fusee.Engine.ITextureRes")]),
         function SetShaderParamTexture(param, texId) {
             var iParam = param.handle;
             var texUnit = -1;

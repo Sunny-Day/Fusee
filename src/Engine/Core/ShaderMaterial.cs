@@ -7,16 +7,16 @@ namespace Fusee.Engine
 {
     public class ShaderMaterial
     {
-        private ShaderProgram _sp;
+        private ShaderRes _sp;
         //private Dictionary<string, dynamic> _list;
 
-        public ShaderMaterial(ShaderProgram program)
+        public ShaderMaterial(ShaderRes res)
         {
-            _sp = program;
+            _sp = res;
             //_list = new Dictionary<string, dynamic>();
             //foreach (KeyValuePair<string, ShaderParamInfo> k in _sp._paramsByName)
             //{
-            //    _list.Add(k.Key, _sp._rci.GetParamValue(program._spi, k.Value.Handle));
+            //    _list.Add(k.Key, _sp._rci.GetParamValue(res._spi, k.Value.Handle));
             //}
         }
 
@@ -29,7 +29,7 @@ namespace Fusee.Engine
 //                _list[name] = value;
 //        }
 
-        public ShaderProgram GetShader()
+        public ShaderRes GetShader()
         {
             return _sp;
         }

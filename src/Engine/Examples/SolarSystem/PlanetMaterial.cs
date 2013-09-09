@@ -6,16 +6,16 @@ namespace Examples.SolarSystem
     public class PlanetMaterial : Material
     {
         public IShaderParam TextureParam;
-        public ITexture Tex;
+        public ITextureRes Tex;
 
-        public PlanetMaterial(ShaderProgram shaderProgram)
+        public PlanetMaterial(ShaderRes shaderRes)
         {
-            sp = shaderProgram;
+            sp = shaderRes;
         }
 
-        public PlanetMaterial(ShaderProgram shaderProgram, string texturePath)
+        public PlanetMaterial(ShaderRes shaderRes, string texturePath)
         {
-            sp = shaderProgram;
+            sp = shaderRes;
 
             TextureParam = sp.GetShaderParam("texture1");
 

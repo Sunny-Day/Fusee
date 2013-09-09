@@ -37,7 +37,7 @@ namespace Fusee.Engine
     public class ShaderEffect
     {
         private readonly RenderStateSet[] _states;
-        private ShaderProgram[] _compiledShaders; 
+        private ShaderRes[] _compiledShaders; 
         private readonly string[] _vertexShaderSrc;
         private readonly string[] _pixelShaderSrc;
         private Dictionary<string, EffectParam> _parameters;
@@ -66,7 +66,7 @@ namespace Fusee.Engine
             int nPasses = effectPasses.Length;
             
             _states = new RenderStateSet[nPasses];
-            _compiledShaders = new ShaderProgram[nPasses];
+            _compiledShaders = new ShaderRes[nPasses];
             _vertexShaderSrc = new string[nPasses];
             _pixelShaderSrc = new string[nPasses];
 
@@ -214,9 +214,9 @@ namespace Fusee.Engine
                         {
                             _rc.SetShaderParam(param.Info.Handle, (float4x4)param.Value);
                         }
-                        else if (param.Info.Type == typeof(ITexture))
+                        else if (param.Info.Type == typeof(ITextureRes))
                         {
-                            _rc.SetShaderParamTexture(param.Info.Handle, (ITexture) param.Value);
+                            _rc.SetShaderParamTexture(param.Info.Handle, (ITextureRes) param.Value);
                         }
                     }
                     _rc.SetRenderState(_states[i]);

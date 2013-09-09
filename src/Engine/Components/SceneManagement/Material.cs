@@ -8,20 +8,20 @@ namespace Fusee.SceneManagement
     {
         protected ImageData imgData;
         protected ImageData imgData2;
-        protected ITexture iTex;
-        protected ITexture iTex2;
+        protected ITextureRes iTex;
+        protected ITextureRes iTex2;
         protected IShaderParam _vColorParam;
         protected IShaderParam _texture1Param;
 
-        public ShaderProgram sp;
+        public ShaderRes sp;
 
         public Material()
         {
             
         }
-        public Material(ShaderProgram _program)
+        public Material(ShaderRes res)
         {
-            sp = _program;
+            sp = res;
         }
 
         virtual public void Update(RenderContext renderContext)

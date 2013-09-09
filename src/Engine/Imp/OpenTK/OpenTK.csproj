@@ -50,8 +50,8 @@
     <Compile Include="RenderCanvasImp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShaderParam.cs" />
-    <Compile Include="ShaderProgramImp.cs" />
-    <Compile Include="Texture.cs" />
+    <Compile Include="ShaderResImp.cs" />
+    <Compile Include="TextureRes.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">

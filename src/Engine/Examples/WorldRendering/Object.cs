@@ -27,7 +27,7 @@ namespace Examples.WorldRendering
             return _mesh;
         }
 
-        public ShaderProgram GetShader(RenderContext rc)
+        public ShaderRes GetShader(RenderContext rc)
         {
             _material.UpdateMaterial(rc);
             return _material.GetShader();

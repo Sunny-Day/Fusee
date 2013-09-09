@@ -72,7 +72,7 @@
     <Compile Include="RenderStateSet.cs" />
     <Compile Include="ShaderEffect.cs" />
     <Compile Include="ShaderMaterial.cs" />
-    <Compile Include="ShaderProgram.cs" />
+    <Compile Include="ShaderRes.cs" />
     <Compile Include="Shaders.cs" />
     <Compile Include="Time.cs" />
   </ItemGroup>

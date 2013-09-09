@@ -15,13 +15,13 @@ namespace Fusee.Engine
 
         float ClearDepth { set; get; }
 
-        IShaderProgramImp CreateShader(string vs, string ps);
+        IShaderResImp CreateShader(string vs, string ps);
 
-        IList<ShaderParamInfo> GetShaderParamList(IShaderProgramImp shaderProgram);
+        IList<ShaderParamInfo> GetShaderParamList(IShaderResImp shaderRes);
 
-        IShaderParam GetShaderParam(IShaderProgramImp shaderProgram, string paramName);
+        IShaderParam GetShaderParam(IShaderResImp shaderRes, string paramName);
 
-        float GetParamValue(IShaderProgramImp shaderProgram, IShaderParam param);
+        float GetParamValue(IShaderResImp shaderRes, IShaderParam param);
 
         [JSChangeName("SetShaderParam1f")]
         void SetShaderParam(IShaderParam param, float val);
@@ -42,7 +42,7 @@ namespace Fusee.Engine
         void SetShaderParam(IShaderParam param, int val);
 
 
-        ITexture CreateTexture(ImageData imageData);
+        ITextureRes CreateTexture(ImageData imageData);
 
         ImageData LoadImage(String filename);
 
@@ -51,7 +51,7 @@ namespace Fusee.Engine
         ImageData TextOnImage(ImageData imgData, String fontName, float fontSize, String text, String textColor,
                               float startPosX, float startPosY);
 
-        void SetShaderParamTexture(IShaderParam param, ITexture texId);
+        void SetShaderParamTexture(IShaderParam param, ITextureRes texId);
 
         void Clear(ClearFlags flags);
 
@@ -65,7 +65,7 @@ namespace Fusee.Engine
 
         void SetTriangles(IMeshImp mr, short[] triangleIndices);
 
-        void SetShader(IShaderProgramImp shaderProgramImp);
+        void SetShader(IShaderResImp shaderResImp);
 
         void Viewport(int x, int y, int width, int height);
 

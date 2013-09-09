@@ -9,48 +9,48 @@ namespace Fusee.Engine
     public static class Shaders
     {
 
-        public static ShaderProgram GetShader(string name, RenderContext rc)
+        public static ShaderRes GetShader(string name, RenderContext rc)
         {
             if (name == "animation")
             {
-                ShaderProgram spSimple = rc.CreateShader(VsAnimation, PsColor);
+                ShaderRes spSimple = rc.CreateShader(VsAnimation, PsColor);
                 return spSimple;
             }
             if (name == "weavy")
             {
-                ShaderProgram spSimple = rc.CreateShader(VsWeavy, PsColor);
+                ShaderRes spSimple = rc.CreateShader(VsWeavy, PsColor);
                 return spSimple;
             }
             if (name == "flat")
             {
-                ShaderProgram spSimple = rc.CreateShader(VsFlatten, PsColor);
+                ShaderRes spSimple = rc.CreateShader(VsFlatten, PsColor);
                 return spSimple;
             }
             if (name == "simple")
             {
 
-                ShaderProgram spSimple = rc.CreateShader(Vs, PsSimple);
+                ShaderRes spSimple = rc.CreateShader(Vs, PsSimple);
                 return spSimple;
             }
             if (name == "color")
             {
 
-                ShaderProgram spColor = rc.CreateShader(Vs, PsColor);
+                ShaderRes spColor = rc.CreateShader(Vs, PsColor);
                 return spColor;
             }
 
             if (name == "singleLight")
             {
-                ShaderProgram spLight = rc.CreateShader(VsSingleLight, PsSingleLight);
+                ShaderRes spLight = rc.CreateShader(VsSingleLight, PsSingleLight);
                 return spLight;
             }
 
             if (name == "multiLight")
             {
-                ShaderProgram spLight = rc.CreateShader(VsMultiLight, PsMultiLight);
+                ShaderRes spLight = rc.CreateShader(VsMultiLight, PsMultiLight);
                 return spLight;
             }
-            ShaderProgram spOriginal = rc.CreateShader(Vs, PsSimple);
+            ShaderRes spOriginal = rc.CreateShader(Vs, PsSimple);
             return spOriginal;
         }
 

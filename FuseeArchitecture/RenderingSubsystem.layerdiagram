@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layerModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/SimpleShapesModel" dslVersion="1.0.0.0" Id="9314b21c-5d5a-4ff1-9b4c-bc52e2087da0" xmlns="http://schemas.microsoft.com/VisualStudio/TeamArchitect/LayerDesigner">
+  <layers>
+    <layer Id="07aad440-e835-4b12-81f2-b314514286f9" name="Implementation">
+      <comments>
+        <comment Id="3fd2c4be-e155-4497-807c-1ad5385ee951" name="Comment1">
+          <body>Contains hardware/platform specific implementations. Classes are not accessible by user code. Instantiation occurs through factories or manager rather than using the new operator.
+</body>
+        </comment>
+      </comments>
+    </layer>
+    <layer Id="2ef3ff0d-d809-4200-9118-4d6626e3169a" name="Queued Rendering">
+      <comments>
+        <comment Id="4f0d03cd-403a-4ecf-853d-d62420f69905" name="Comment1">
+          <body>Enables resource creation (like textures and shaders) without underlying hardware implementation. Resources are instantiatable without factory or manager, just by using the new operator. The Rendering queue allows sorted multipass rendering and multipass lighting as well as transparency sorting. Most objects are serializable and can be used in persistence or networking. Classes within this layer do not necessarily have 1:1 counterparts in the Immediate Rendering layer.</body>
+        </comment>
+      </comments>
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="5100964b-beb3-4a3f-9880-6048172ece9e" direction="Forward">
+          <layerMoniker Id="89814324-03ed-4030-aa42-aad12865bcbc" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+    </layer>
+    <layer Id="89814324-03ed-4030-aa42-aad12865bcbc" name="Immediate Rendering">
+      <comments>
+        <comment Id="601dc397-2210-4333-ad8f-3c2dac404515" name="Comment1">
+          <body>Abstracts underlying hardware/platform implementation. Resources need to be created explicitly from their respective factory or manager. Most objects are bound to underlying hardware/platform resourceas and thus are NOT serializable. Classes are mostly mapped 1:1 with respective counterparts in the Implementation layer.</body>
+        </comment>
+      </comments>
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="e12879c3-5248-4d45-aab4-5d7a2b23fa92" direction="Forward">
+          <layerMoniker Id="07aad440-e835-4b12-81f2-b314514286f9" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+    </layer>
+  </layers>
+</layerModel>

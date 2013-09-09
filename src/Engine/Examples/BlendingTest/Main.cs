@@ -17,7 +17,7 @@ namespace Examples.BlendingTest
         private Mesh _meshTea;
 
         // variables for shader
-        private ShaderProgram _spColor;
+        private ShaderRes _spColor;
         private IShaderParam _colorParam;
 
         private ShaderEffect _shaderEffect = new ShaderEffect( new[]
@@ -122,7 +122,7 @@ namespace Examples.BlendingTest
              },
             }, 
 
-            new[]
+         new[]
                 {
                     new EffectParameterDeclaration {Name = "vColor", Value = new float4(1, 0.3f, 0.7f, 1)}, 
                 }); 
@@ -130,14 +130,6 @@ namespace Examples.BlendingTest
         // is called on startup
         public override void Init()
         {
-            // ColorUint constructor test
-            ColorUint ui1 = new ColorUint((uint) 4711);
-            ColorUint ui2 = new ColorUint((byte)42, (byte)43, (byte)44, (byte)45);
-            ColorUint u3 = new ColorUint((float)1, (float)43, (float)44, (float)45);
-
-
-
-
             RC.ClearColor = new float4(1f, 1f, 1f, 1);
 
             // initialize the variables
@@ -145,18 +137,16 @@ namespace Examples.BlendingTest
 
             _shaderEffect.AttachToContext(RC);
 
-
+            /*
             _spColor = MoreShaders.GetShader("simple", RC);
             _colorParam = _spColor.GetShaderParam("vColor");
 
-            /*
             RC.SetRenderState(RenderState.ZEnable, (uint) 1);            
             RC.SetRenderState(RenderState.AlphaBlendEnable, (uint) 1);
             RC.SetRenderState(RenderState.BlendFactor, (uint)new ColorUint(0.25f, 0.25f, 0.25f, 0.25f));
             RC.SetRenderState(RenderState.BlendOperation, (uint)(BlendOperation.Add));
             RC.SetRenderState(RenderState.SourceBlend, (uint)(Blend.BlendFactor));
             RC.SetRenderState(RenderState.DestinationBlend, (uint)(Blend.InverseBlendFactor));
-            */
 
             RC.SetRenderState(new RenderStateSet
                 {
@@ -166,6 +156,7 @@ namespace Examples.BlendingTest
                     SourceBlend = Blend.BlendFactor,
                     DestinationBlend = Blend.InverseBlendFactor
                 });
+            */
         }
 
         // is called once a frame

@@ -7,16 +7,16 @@ namespace Fusee.Engine
 {
     /// <summary>
     /// The render context contains all functions necessary to manipulate the underlying rendering hardware. Use this class' elements
-    /// to render geometry to the RenderCanvas associated with this context. If you are worked with OpenGL or DirectX before you will find
+    /// to render geometry to the RenderCanvas associated with this context. If you worked with OpenGL or DirectX before you will find
     /// many similarities in this class' methods and properties.
     /// </summary>
     public class RenderContext
     {
         private readonly IRenderContextImp _rci;
 
-        private ShaderProgram _currentShader;
+        private ShaderRes _currentShader;
         private MatrixParamNames _currentShaderParams;
-        private ShaderProgram _debugShader;
+        private ShaderRes _debugShader;
         private IShaderParam _debugColor;
         private readonly Light[] _lightParams;
         private readonly LightParamNames[] _lightShaderParams;
@@ -161,14 +161,14 @@ namespace Fusee.Engine
         /// </remarks>
         /// <param name="imgData">An ImageData struct, containing necessary information for the upload to the graphics card.</param>
         /// <returns>
-        /// An ITexture that can be used for texturing in the shader.
+        /// An ITextureRes that can be used for texturing in the shader.
         /// </returns>
-        public ITexture CreateTexture(ImageData imgData)
+        public ITextureRes CreateTexture(ImageData imgData)
         {
             return _rci.CreateTexture(imgData);
         }
 
-        public ITexture DisableTexture()
+        public ITextureRes DisableTexture()
         {
             return _rci.CreateTexture(CreateImage(1, 1, "white"));
         }
@@ -195,13 +195,13 @@ namespace Fusee.Engine
         /// Sets a Shader Parameter to a created texture.
         /// </summary>
         /// <param name="param">Shader Parameter used for texture binding.</param>
-        /// <param name="texId">An ITexture probably returned from CreateTexture() method.</param>
-        public void SetShaderParamTexture(IShaderParam param, ITexture texId)
+        /// <param name="texId">An ITextureRes probably returned from CreateTexture() method.</param>
+        public void SetShaderParamTexture(IShaderParam param, ITextureRes texId)
         {
             _rci.SetShaderParamTexture(param, texId);
         }
 
-        public ShaderProgram CurrentShader
+        public ShaderRes CurrentShader
         {
             get { return _currentShader; }
         }
@@ -958,15 +958,15 @@ namespace Fusee.Engine
         /// </summary>
         /// <param name="vs">A string containing the vertex shader source.</param>
         /// <param name="ps">A string containing the pixel (fragment) shader source code.</param>
-        /// <returns>A shader program object identifying the combination of the given vertex and pixel shader.</returns>
+        /// <returns>A shader res object identifying the combination of the given vertex and pixel shader.</returns>
         /// <remarks>
         /// Currently only shaders in GLSL (or rather GLSL/ES) source language(s) are supported.
-        /// The result is already compiled to code executable on the GPU. <see cref="Fusee.Engine.RenderContext.SetShader(ShaderProgram)"/>
+        /// The result is already compiled to code executable on the GPU. <see cref="Fusee.Engine.RenderContext.SetShader(ShaderRes)"/>
         /// to activate the result as the current shader used for rendering geometry passed to the RenderContext.
         /// </remarks>
-        public ShaderProgram CreateShader(string vs, string ps)
+        public ShaderRes CreateShader(string vs, string ps)
         {
-            var sp = new ShaderProgram(_rci, _rci.CreateShader(vs, ps));
+            var sp = new ShaderRes(_rci, _rci.CreateShader(vs, ps));
             /*
 sp.ShaderParamHandlesImp = new ShaderParamHandleImp[MatrixParamNames.Length];
 for (int i=0; i < MatrixParamNames.Length; i++)
@@ -978,17 +978,17 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         }
 
         /// <summary>
-        /// Activates the passed shader program as the current shader for geometry rendering.
+        /// Activates the passed shader res as the current shader for geometry rendering.
         /// </summary>
-        /// <param name="program">The shader to apply to mesh geometry subsequently passed to the RenderContext</param>
+        /// <param name="res">The shader to apply to mesh geometry subsequently passed to the RenderContext</param>
         /// <seealso cref="Fusee.Engine.RenderContext.CreateShader"/>
         /// <seealso cref="Fusee.Engine.RenderContext.Render(Mesh)"/>
-        public void SetShader(ShaderProgram program)
+        public void SetShader(ShaderRes res)
         {
             _updatedShaderParams = false;
 
-            _currentShader = program;
-            _rci.SetShader(program._spi);
+            _currentShader = res;
+            _rci.SetShader(res._spi);
             //UpdateCurrentShader();
 
             UpdateShaderParams();
@@ -997,43 +997,43 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// <summary>
         /// Get a list of (uniform) shader parameters accessed by the given shader.
         /// </summary>
-        /// <param name="program">The shader program to query for parameters.</param>
+        /// <param name="res">The shader res to query for parameters.</param>
         /// <returns>
-        /// A list of shader parameters accessed by the shader code of the given shader program. The parameters listed here
+        /// A list of shader parameters accessed by the shader code of the given shader res. The parameters listed here
         /// are the so-called uniform parameters of the shader (in contrast to the varying parameters). The list contains all
         /// uniform parameters that are accessed by either the vertex shader, the pixel shader, or both shaders compiled into
         /// the given shader.
         /// </returns>
-        public IEnumerable<ShaderParamInfo> GetShaderParamList(ShaderProgram program)
+        public IEnumerable<ShaderParamInfo> GetShaderParamList(ShaderRes res)
         {
-            return _rci.GetShaderParamList(program._spi);
+            return _rci.GetShaderParamList(res._spi);
         }
 
         // Pass thru
         /// <summary>
-        /// Returns an identifiyer for the named (uniform) parameter used in the specified shader program.
+        /// Returns an identifiyer for the named (uniform) parameter used in the specified shader res.
         /// </summary>
-        /// <param name="program">The shader program using the parameter.</param>
+        /// <param name="res">The shader res using the parameter.</param>
         /// <param name="paramName">Name of the shader parameter.</param>
         /// <returns>A handle object to identify the given parameter in subsequent calls to SetShaderParam.</returns>
         /// <remarks>
         /// The returned handle can be used to assign values to a (uniform) shader paramter.
         /// </remarks>
         /// <seealso cref="SetShaderParam(IShaderParam,float)"/>
-        public IShaderParam GetShaderParam(ShaderProgram program, string paramName)
+        public IShaderParam GetShaderParam(ShaderRes res, string paramName)
         {
-            return _rci.GetShaderParam(program._spi, paramName);
+            return _rci.GetShaderParam(res._spi, paramName);
         }
 
         /// <summary>
         /// Gets the value of a shader parameter.
         /// </summary>
-        /// <param name="program">The program.</param>
+        /// <param name="res">The res.</param>
         /// <param name="handle">The handle.</param>
         /// <returns>The float value.</returns>
-        public float GetParamValue(ShaderProgram program, IShaderParam handle)
+        public float GetParamValue(ShaderRes res, IShaderParam handle)
         {
-            return _rci.GetParamValue(program._spi, handle);
+            return _rci.GetParamValue(res._spi, handle);
         }
 
         /// <summary>
@@ -1043,7 +1043,7 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// <param name="val">The float value that should be assigned to the shader parameter.</param>
         /// <remarks>
         /// <see cref="GetShaderParam"/> to see how to retrieve an identifier for
-        /// a given uniform parameter name used in a shader program.
+        /// a given uniform parameter name used in a shader res.
         /// </remarks>
         /// <seealso cref="GetShaderParamList"/>
         [JSChangeName("SetShaderParam1f")]
@@ -1059,7 +1059,7 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// <param name="val">The float2 value that should be assigned to the shader parameter.</param>
         /// <remarks>
         /// <see cref="GetShaderParam"/> to see how to retrieve an identifier for
-        /// a given uniform parameter name used in a shader program.
+        /// a given uniform parameter name used in a shader res.
         /// </remarks>
         /// <seealso cref="GetShaderParamList"/>
         [JSChangeName("SetShaderParam2f")]
@@ -1075,7 +1075,7 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// <param name="val">The float3 value that should be assigned to the shader parameter.</param>
         /// <remarks>
         /// <see cref="GetShaderParam"/> to see how to retrieve an identifier for
-        /// a given uniform parameter name used in a shader program.
+        /// a given uniform parameter name used in a shader res.
         /// </remarks>
         /// <seealso cref="GetShaderParamList"/>
         [JSChangeName("SetShaderParam3f")]
@@ -1091,7 +1091,7 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// <param name="val">The float4 value that should be assigned to the shader parameter.</param>
         /// <remarks>
         /// <see cref="GetShaderParam"/> to see how to retrieve an identifier for
-        /// a given uniform parameter name used in a shader program.
+        /// a given uniform parameter name used in a shader res.
         /// </remarks>
         /// <seealso cref="GetShaderParamList"/>
         [JSChangeName("SetShaderParam4f")]
@@ -1107,7 +1107,7 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// <param name="val">The float4x4 matrix that should be assigned to the shader parameter.</param>
         /// <remarks>
         /// <see cref="GetShaderParam"/> to see how to retrieve an identifier for
-        /// a given uniform parameter name used in a shader program.
+        /// a given uniform parameter name used in a shader res.
         /// </remarks>
         /// <seealso cref="GetShaderParamList"/>
         public void SetShaderParam(IShaderParam param, float4x4 val)
@@ -1122,7 +1122,7 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// <param name="val">The integer value that should be assigned to the shader parameter.</param>
         /// <remarks>
         /// <see cref="GetShaderParam"/> to see how to retrieve an identifier for
-        /// a given uniform parameter name used in a shader program.
+        /// a given uniform parameter name used in a shader res.
         /// </remarks>
         /// <seealso cref="GetShaderParamList"/>
         [JSChangeName("SetShaderParamI")]
@@ -1153,7 +1153,7 @@ sp.ShaderParamHandlesImp[i] = _rci.GetShaderParamHandle(sp.Spi, MatrixParamNames
         /// <param name="m">The mesh that should be rendered.</param>
         /// <remarks>
         /// Passes geometry to be pushed through the rendering pipeline. <see cref="Mesh"/> for a description how geometry is made up.
-        /// The geometry is transformed and rendered by the currently active shader program.
+        /// The geometry is transformed and rendered by the currently active shader res.
         /// </remarks>
         public void Render(Mesh m)
         {

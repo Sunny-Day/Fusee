@@ -1,6 +1,6 @@
 ﻿namespace Fusee.Engine
 {
-    public interface IShaderProgramImp
+    public interface IShaderResImp
     {
     }
 }

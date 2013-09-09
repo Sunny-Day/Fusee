@@ -17,13 +17,13 @@ namespace Examples.Simple
         private Mesh _meshTea, _meshFace;
 
         // variables for shader
-        private ShaderProgram _spColor;
-        private ShaderProgram _spTexture;
+        private ShaderRes _spColor;
+        private ShaderRes _spTexture;
 
         private IShaderParam _colorParam;
         private IShaderParam _textureParam;
 
-        private ITexture _iTex;
+        private ITextureRes _iTex;
 
         // is called on startup
         public override void Init()

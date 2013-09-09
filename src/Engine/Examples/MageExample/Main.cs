@@ -129,10 +129,10 @@ namespace Examples.MageExample
 
         protected IShaderParam VColorParam;
 
-        private ITexture _iTex;
-        private ITexture _iTex2;
-        private ITexture _iTex2Glove;
-        private ITexture _iTexGlove;
+        private ITextureRes _iTex;
+        private ITextureRes _iTex2;
+        private ITextureRes _iTex2Glove;
+        private ITextureRes _iTexGlove;
 
         private IShaderParam _specularLevelBody;
         private IShaderParam _texture1ParamBody;
