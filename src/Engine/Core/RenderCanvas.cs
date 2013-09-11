@@ -19,6 +19,7 @@ namespace Fusee.Engine
         private IAudioImp _audioImp;
         private IInputImp _inputImp;
         internal IRenderCanvasImp _canvasImp;
+        internal IImagehelperImp _imagehelperImp;
 
         [InjectMe] 
         public IRenderCanvasImp CanvasImplementor
@@ -48,6 +49,12 @@ namespace Fusee.Engine
             get { return _audioImp; }
         }
 
+        [InjectMe]
+        public IImagehelperImp ImagehelperImplementor
+        {
+            set { _imagehelperImp = value; }
+            get { return _imagehelperImp; }
+        }
 
 
         /// <summary>
@@ -87,6 +94,9 @@ namespace Fusee.Engine
 
             if (_audioImp == null)
                 _audioImp = ImpFactory.CreateIAudioImp();
+
+            if (_imagehelperImp == null)
+                _imagehelperImp = ImpFactory.CreateIImagehelperImp();
         }
 
         protected string GetAppName()
@@ -112,6 +122,7 @@ namespace Fusee.Engine
             _canvasImp.Caption = GetAppName();
            _rc = new RenderContext(_renderContextImp);
 
+            Imagehelper.Instance.ImageHelperImp = _imagehelperImp;
             Input.Instance.InputImp = _inputImp;
             Audio.Instance.AudioImp = _audioImp;
 

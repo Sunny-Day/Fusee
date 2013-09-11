@@ -41,9 +41,17 @@
     </Validate>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\src\Engine\Common\Common.csproj">
+      <Name>Common</Name>
+      <Project>{dfd770f6-4222-4255-aae0-dcacdc7b21eb}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\src\Engine\Core\Core.csproj">
       <Name>Core</Name>
       <Project>{1228eb3f-8bcc-453f-8a2e-d9246495a118}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\src\Engine\Imp\OpenTK\OpenTK.csproj">
+      <Name>OpenTK</Name>
+      <Project>{f7ad2bb5-d2b0-4697-bddb-4cc26152a6b6}</Project>
     </ProjectReference>
   </ItemGroup>
 </Project>

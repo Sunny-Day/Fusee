@@ -44,13 +44,6 @@ namespace Fusee.Engine
 
         ITextureRes CreateTexture(ImageData imageData);
 
-        ImageData LoadImage(String filename);
-
-        ImageData CreateImage(int width, int height, String bgColor);
-
-        ImageData TextOnImage(ImageData imgData, String fontName, float fontSize, String text, String textColor,
-                              float startPosX, float startPosY);
-
         void SetShaderParamTexture(IShaderParam param, ITextureRes texId);
 
         void Clear(ClearFlags flags);

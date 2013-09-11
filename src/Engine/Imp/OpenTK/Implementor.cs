@@ -19,5 +19,10 @@ namespace Fusee.Engine
         {
             return new InputImp(rci);
         }
+
+        public static IImagehelperImp CreateImagehelperImp()
+        {
+            return new ImagehelperImp();
+        }
     }
 }

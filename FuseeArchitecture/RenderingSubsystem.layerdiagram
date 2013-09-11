@@ -8,11 +8,39 @@
 </body>
         </comment>
       </comments>
+      <childLayers>
+        <layer Id="82ce2ec3-6aed-44b2-a434-eca749cea417" name="ShaderResImp.cs">
+          <references>
+            <reference Id="5249d573-9a24-4232-95b3-8c30bccbfde5" name="ShaderResImp.cs">
+              <ArtifactNode Label="ShaderResImp.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=&quot;$(PersonalUri)/_DEV/Fusee/src/Engine/Imp/OpenTK/OpenTK.csproj&quot; File=&quot;$(PersonalUri)/_DEV/Fusee/src/Engine/Imp/OpenTK/ShaderResImp.cs&quot;)">
+                <Category Ref="File" />
+              </ArtifactNode>
+              <ExpandedNode Id="(Assembly=Fusee.Engine.Imp.OpenTK Namespace=Fusee.Engine Type=ShaderResImp)" Label="ShaderResImp" Category="CodeSchema_Class">
+                <LinkCategory Ref="Contains" />
+                <LinkCategory Ref="Represents" />
+              </ExpandedNode>
+            </reference>
+          </references>
+        </layer>
+        <layer Id="1b200da6-c6d1-45f4-b798-ed946d81d0fe" name="TextureRes.cs">
+          <references>
+            <reference Id="ad0df953-86f6-4bef-840d-0e7f282a13cd" name="TextureRes.cs">
+              <ArtifactNode Label="TextureRes.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=&quot;$(PersonalUri)/_DEV/Fusee/src/Engine/Imp/OpenTK/OpenTK.csproj&quot; File=&quot;$(PersonalUri)/_DEV/Fusee/src/Engine/Imp/OpenTK/TextureRes.cs&quot;)">
+                <Category Ref="File" />
+              </ArtifactNode>
+              <ExpandedNode Id="(Assembly=Fusee.Engine.Imp.OpenTK Namespace=Fusee.Engine Type=TextureRes)" Label="TextureRes" Category="CodeSchema_Class">
+                <LinkCategory Ref="Contains" />
+                <LinkCategory Ref="Represents" />
+              </ExpandedNode>
+            </reference>
+          </references>
+        </layer>
+      </childLayers>
     </layer>
     <layer Id="2ef3ff0d-d809-4200-9118-4d6626e3169a" name="Queued Rendering">
       <comments>
         <comment Id="4f0d03cd-403a-4ecf-853d-d62420f69905" name="Comment1">
-          <body>Enables resource creation (like textures and shaders) without underlying hardware implementation. Resources are instantiatable without factory or manager, just by using the new operator. The Rendering queue allows sorted multipass rendering and multipass lighting as well as transparency sorting. Most objects are serializable and can be used in persistence or networking. Classes within this layer do not necessarily have 1:1 counterparts in the Immediate Rendering layer.</body>
+          <body>Enables resource creation (like textures and shaders) without underlying hardware implementation. Resources are instantiatable without factory or manager, just by using the new operator. The Rendering queue allows sorted multipass rendering and multipass lighting as well as transparency sorting. Most objects are serializable and can be used in persistence or networking. Classes within this layer do not necessarily have 1:1 counterparts in the Immediate Renderin layer</body>
         </comment>
       </comments>
       <dependencyToLayers>
@@ -32,6 +60,34 @@
           <layerMoniker Id="07aad440-e835-4b12-81f2-b314514286f9" />
         </dependencyFromLayerToLayer>
       </dependencyToLayers>
+      <childLayers>
+        <layer Id="a34aff1a-3cd6-41df-a089-7d43ce38faa8" name="ShaderRes.cs">
+          <references>
+            <reference Id="8f2038ad-d1de-4615-8255-a57f092071e9" name="ShaderRes.cs">
+              <ArtifactNode Label="ShaderRes.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=&quot;$(PersonalUri)/_DEV/Fusee/src/Engine/Core/Core.csproj&quot; File=&quot;$(PersonalUri)/_DEV/Fusee/src/Engine/Core/ShaderRes.cs&quot;)">
+                <Category Ref="File" />
+              </ArtifactNode>
+              <ExpandedNode Id="(Assembly=Fusee.Engine.Core Namespace=Fusee.Engine Type=ShaderRes)" Label="ShaderRes" Category="CodeSchema_Class">
+                <LinkCategory Ref="Contains" />
+                <LinkCategory Ref="Represents" />
+              </ExpandedNode>
+            </reference>
+          </references>
+        </layer>
+        <layer Id="b50610e7-e46e-4c70-80df-6de1e8d933b7" name="ITextureRes.cs">
+          <references>
+            <reference Id="0cc62862-ccea-463c-a5be-692688c7a6d9" name="ITextureRes.cs">
+              <ArtifactNode Label="ITextureRes.cs" Category="CodeSchema_ProjectItem" Id="(Assembly=&quot;$(PersonalUri)/_DEV/Fusee/src/Engine/Common/Common.csproj&quot; File=&quot;$(PersonalUri)/_DEV/Fusee/src/Engine/Common/ITextureRes.cs&quot;)">
+                <Category Ref="File" />
+              </ArtifactNode>
+              <ExpandedNode Id="(Assembly=Fusee.Engine.Common Namespace=Fusee.Engine Type=ITextureRes)" Label="ITextureRes" Category="CodeSchema_Interface">
+                <LinkCategory Ref="Contains" />
+                <LinkCategory Ref="Represents" />
+              </ExpandedNode>
+            </reference>
+          </references>
+        </layer>
+      </childLayers>
     </layer>
   </layers>
 </layerModel>

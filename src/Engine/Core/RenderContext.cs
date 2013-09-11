@@ -123,35 +123,6 @@ namespace Fusee.Engine
         private bool _transProjectionOk;
         private bool _transModelViewProjectionOk;
 
-
-        /// <summary>
-        /// Creates a new Image with a specified size and color.
-        /// </summary>
-        /// <param name="width">The width of the image.</param>
-        /// <param name="height">The height of the image.</param>
-        /// <param name="bgColor">The color of the image. Value must be JS compatible.</param>
-        /// <returns>An ImageData struct containing all necessary information for further processing.</returns>
-        public ImageData CreateImage(int width, int height, String bgColor)
-        {
-            return _rci.CreateImage(width, height, bgColor);
-        }
-
-        /// <summary>
-        /// Maps a specified text with on an image.
-        /// </summary>
-        /// <param name="imgData">The ImageData struct with the PixelData from the image.</param>
-        /// <param name="fontName">The name of the text-font.</param>
-        /// <param name="fontSize">The size of the text-font.</param>
-        /// <param name="text">The text that sould be mapped on the iamge.</param>
-        /// <param name="textColor">The color of the text-font.</param>
-        /// <param name="startPosX">The horizontal start-position of the text on the image.</param>
-        /// <param name="startPosY">The vertical start-position of the text on the image.</param>
-        /// <returns>An ImageData struct containing all necessary information for further processing</returns>
-        public ImageData TextOnImage(ImageData imgData, String fontName, float fontSize, String text, String textColor, float startPosX, float startPosY)
-        {
-            return _rci.TextOnImage(imgData, fontName, fontSize, text, textColor, startPosX, startPosY);
-        }
-
         /// <summary>
         /// Creates a new texture and binds it to the shader.
         /// </summary>
@@ -166,29 +137,6 @@ namespace Fusee.Engine
         public ITextureRes CreateTexture(ImageData imgData)
         {
             return _rci.CreateTexture(imgData);
-        }
-
-        public ITextureRes DisableTexture()
-        {
-            return _rci.CreateTexture(CreateImage(1, 1, "white"));
-        }
-
-        /// <summary>
-        /// Loads an image file from disk and creates a new Bitmap-object out of it.
-        /// </summary>
-        /// <remarks>
-        /// This is the first step for the texturing Process.
-        /// The Bitmap-bits get locked in the memory and are made available for
-        /// further processing. The returned ImageData-Struct can be used in the
-        /// CreateTexture method.
-        /// </remarks>
-        /// <param name="filename">Path to the image file</param>
-        /// <returns>
-        /// An ImageData struct with all necessary information for the texture-binding process.
-        /// </returns>
-        public ImageData LoadImage(String filename)
-        {
-            return _rci.LoadImage(filename);
         }
 
         /// <summary>

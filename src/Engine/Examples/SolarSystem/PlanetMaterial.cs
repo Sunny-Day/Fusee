@@ -19,7 +19,7 @@ namespace Examples.SolarSystem
 
             TextureParam = sp.GetShaderParam("texture1");
 
-            var image = SceneManager.RC.LoadImage(texturePath);
+            var image = Imagehelper.Instance.LoadImage(texturePath);
             Tex = SceneManager.RC.CreateTexture(image);
         }
 

@@ -89,10 +89,10 @@ namespace Examples.CubeAndTiles
             GlobalCubeMesh = MeshReader.LoadMesh("Assets/Cube.obj.model");
 
             // load textures
-            var imgData = RContext.LoadImage("Assets/tex_stone.jpg");
+            var imgData = Imagehelper.Instance.LoadImage("Assets/tex_stone.jpg");
             TextureResField = RContext.CreateTexture(imgData);
 
-            imgData = RContext.LoadImage("Assets/tex_cube.jpg");
+            imgData = Imagehelper.Instance.LoadImage("Assets/tex_cube.jpg");
             TextureResCube = RContext.CreateTexture(imgData);
 
             // camera

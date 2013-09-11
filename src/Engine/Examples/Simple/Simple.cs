@@ -41,7 +41,7 @@ namespace Examples.Simple
             _textureParam = _spTexture.GetShaderParam("texture1");
 
             // load texture
-            var imgData = RC.LoadImage("Assets/world_map.jpg");
+            var imgData = Imagehelper.Instance.LoadImage("Assets/world_map.jpg");
             _iTex = RC.CreateTexture(imgData);
         }
 

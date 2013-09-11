@@ -77,6 +77,8 @@ namespace Fusee.Engine
             }
         }
 
+
+
         [JSExternal]
         public static IRenderCanvasImp CreateIRenderCanvasImp()
         {
@@ -127,6 +129,17 @@ namespace Fusee.Engine
                 throw new Exception("Implementor type (" + RenderingImplementor.ToString() + ") doesn't contain method CreateNetworkImp");
 
             return (INetworkImp)mi.Invoke(null, null);
+        }
+
+        [JSExternal]
+        public static IImagehelperImp CreateIImagehelperImp()
+        {
+            MethodInfo mi = RenderingImplementor.GetMethod("CreateImagehelperImp");
+
+            if (mi == null)
+                throw new Exception("Implementor type (" + RenderingImplementor.ToString() + ") doesn't contain method CreateImagehelperImp");
+
+            return (IImagehelperImp)mi.Invoke(null, null);
         }
     }
 }
