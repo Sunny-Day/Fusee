@@ -1,12 +1,19 @@
-﻿using Fusee.Engine;
+﻿using System;
+using System.Runtime.InteropServices;
+using Fusee.Engine;
 using Fusee.Math;
 using System.Diagnostics;
 using System.IO;
 namespace Examples.MageExample
 {
+
+
     [FuseeApplication(Name = "Mage Example", Description = "Sample displaying a more complex character.")]
     public class MageExample : RenderCanvas
     {
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        private static extern bool AttachConsole(int processId);
+
         #region Shader
 
         private const string VsBump = @"
@@ -125,11 +132,8 @@ namespace Examples.MageExample
             }";
 
         #endregion
-        private Stopwatch watch = new Stopwatch();
-        MageExample()
-        {
-            watch.Start();
-        }
+        private static Stopwatch watch = new Stopwatch();
+
         protected Mesh Body, GloveL, GloveR;
 
         protected IShaderParam VColorParam;
@@ -152,7 +156,11 @@ namespace Examples.MageExample
 
         public override void Init()
         {
-            Debug.WriteLine("Init Time (ms): " + watch.ElapsedMilliseconds);
+            watch.Stop();
+
+            AttachConsole(-1);
+
+            Console.WriteLine("Init Time (ms): " + watch.ElapsedMilliseconds);
             watch.Stop();
             watch.Reset();
             RC.ClearColor = new float4(0.5f, 0.5f, 0.5f, 1);
@@ -162,14 +170,14 @@ namespace Examples.MageExample
             var bodygeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/mageBodyOBJ.obj.model"));
             var GloveLgeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/mageGloveLOBJ.obj.model"));
             var GloveRgeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/mageGloveROBJ.obj.model"));
-            Debug.WriteLine("Load 3 Geometry files Time (ms): " + watch.ElapsedMilliseconds);
+            Console.WriteLine("Load 3 Geometry files Time (ms): " + watch.ElapsedMilliseconds);
             watch.Stop();
             watch.Reset();
             watch.Start();
             Body = bodygeo.ToMesh();
             GloveL = GloveLgeo.ToMesh();
             GloveR = GloveRgeo.ToMesh();
-            Debug.WriteLine("Parse 3 Geometry files to Meshes Time (ms): " + watch.ElapsedMilliseconds);
+            Console.WriteLine("Parse 3 Geometry files to Meshes Time (ms): " + watch.ElapsedMilliseconds);
             watch.Stop();
             watch.Reset();
             // set up shader, lights and textures
@@ -272,9 +280,9 @@ namespace Examples.MageExample
                 float elapsed = watch.ElapsedMilliseconds;
                 watch.Stop();
                 watch.Reset();
-                Debug.WriteLine("Total time for rendering 1000 Frames (ms): " + elapsed);
+                Console.WriteLine("Total time for rendering 1000 Frames (ms): " + elapsed);
                 float averagefps = 1000 / elapsed * 1000;
-                Debug.WriteLine("Average Frames per Seconds during rendering 1000 Frames: " + averagefps);
+                Console.WriteLine("Average Frames per Seconds during rendering 1000 Frames: " + averagefps);
                 
             }
         }
@@ -289,6 +297,7 @@ namespace Examples.MageExample
 
         public static void Main()
         {
+            watch.Start();
             var app = new MageExample();
             app.Run();
         }
