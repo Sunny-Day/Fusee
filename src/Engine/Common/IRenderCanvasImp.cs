@@ -2,6 +2,12 @@
 
 namespace Fusee.Engine
 {
+    /// <summary>
+    /// The Interface for all RenderCanvas implementations. 
+    /// </summary>
+    /// <remarks>
+    /// Implementation tasks: Screen dimensions handlind and screen change events handling. Review the Members documentation for details.
+    /// </remarks>
     public interface IRenderCanvasImp
     {
         /// <summary>
