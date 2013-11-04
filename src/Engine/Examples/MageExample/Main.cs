@@ -1,6 +1,7 @@
 ﻿using Fusee.Engine;
 using Fusee.Math;
-
+using System.Diagnostics;
+using System.IO;
 namespace Examples.MageExample
 {
     [FuseeApplication(Name = "Mage Example", Description = "Sample displaying a more complex character.")]
@@ -124,7 +125,11 @@ namespace Examples.MageExample
             }";
 
         #endregion
-
+        private Stopwatch watch = new Stopwatch();
+        MageExample()
+        {
+            watch.Start();
+        }
         protected Mesh Body, GloveL, GloveR;
 
         protected IShaderParam VColorParam;
@@ -147,13 +152,26 @@ namespace Examples.MageExample
 
         public override void Init()
         {
+            Debug.WriteLine("Init Time (ms): " + watch.ElapsedMilliseconds);
+            watch.Stop();
+            watch.Reset();
             RC.ClearColor = new float4(0.5f, 0.5f, 0.5f, 1);
 
             // load meshes
-            Body = MeshReader.LoadMesh(@"Assets/mageBodyOBJ.obj.model");
-            GloveL = MeshReader.LoadMesh(@"Assets/mageGloveLOBJ.obj.model");
-            GloveR = MeshReader.LoadMesh(@"Assets/mageGloveROBJ.obj.model");
-
+            watch.Start();
+            var bodygeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/mageBodyOBJ.obj.model"));
+            var GloveLgeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/mageGloveLOBJ.obj.model"));
+            var GloveRgeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/mageGloveROBJ.obj.model"));
+            Debug.WriteLine("Load 3 Geometry files Time (ms): " + watch.ElapsedMilliseconds);
+            watch.Stop();
+            watch.Reset();
+            watch.Start();
+            Body = bodygeo.ToMesh();
+            GloveL = GloveLgeo.ToMesh();
+            GloveR = GloveRgeo.ToMesh();
+            Debug.WriteLine("Parse 3 Geometry files to Meshes Time (ms): " + watch.ElapsedMilliseconds);
+            watch.Stop();
+            watch.Reset();
             // set up shader, lights and textures
             var spBody = RC.CreateShader(VsBump, PsBump);
             RC.SetShader(spBody);
@@ -193,6 +211,7 @@ namespace Examples.MageExample
             _angleVert = 0;
 
             _rotationSpeed = 1.5f;
+            watch.Start();
         }
 
         public override void RenderAFrame()
@@ -212,16 +231,16 @@ namespace Examples.MageExample
             _angleHorz += _angleVelHorz;
             _angleVert += _angleVelVert;
 
-            if (Input.Instance.IsKey(KeyCodes.Left))
+            if (Input.Instance.IsKeyDown(KeyCodes.Left))
                 _angleHorz -= _rotationSpeed*(float) Time.Instance.DeltaTime;
 
-            if (Input.Instance.IsKey(KeyCodes.Right))
+            if (Input.Instance.IsKeyDown(KeyCodes.Right))
                 _angleHorz += _rotationSpeed*(float) Time.Instance.DeltaTime;
 
-            if (Input.Instance.IsKey(KeyCodes.Up))
+            if (Input.Instance.IsKeyDown(KeyCodes.Up))
                 _angleVert -= _rotationSpeed*(float) Time.Instance.DeltaTime;
 
-            if (Input.Instance.IsKey(KeyCodes.Down))
+            if (Input.Instance.IsKeyDown(KeyCodes.Down))
                 _angleVert += _rotationSpeed*(float) Time.Instance.DeltaTime;
 
             var mtxRot = float4x4.CreateRotationY(_angleHorz)*float4x4.CreateRotationX(_angleVert);
@@ -248,6 +267,16 @@ namespace Examples.MageExample
 
             // swap buffers
             Present();
+            if (Time.Instance.Frames == 1000)
+            {
+                float elapsed = watch.ElapsedMilliseconds;
+                watch.Stop();
+                watch.Reset();
+                Debug.WriteLine("Total time for rendering 1000 Frames (ms): " + elapsed);
+                float averagefps = 1000 / elapsed * 1000;
+                Debug.WriteLine("Average Frames per Seconds during rendering 1000 Frames: " + averagefps);
+                
+            }
         }
 
         public override void Resize()
