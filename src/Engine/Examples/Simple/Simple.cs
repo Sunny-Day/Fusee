@@ -1,7 +1,8 @@
 ﻿using System;
 using Fusee.Engine;
 using Fusee.Math;
-
+using ProtoBuf;
+using System.IO;
 namespace Examples.Simple
 {
     [FuseeApplication(Name = "Simple Example", Description = "A very simple example.")]
@@ -31,7 +32,12 @@ namespace Examples.Simple
             RC.ClearColor = new float4(1, 1, 1, 1);
 
             // initialize the variables
-            _meshTea = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
+            //_meshTea = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
+            var file = File.OpenRead(@"Assets/Teapot.model");
+            _meshTea = ProtoBuf.Serializer.Deserialize<Mesh>(file);
+            //var test = File.Create(@"Assets/Teapot.model");
+            //ProtoBuf.Serializer.Serialize<Mesh>(test, _meshTea);
+
             _meshFace = MeshReader.LoadMesh(@"Assets/Face.obj.model");
 
             _spColor = MoreShaders.GetDiffuseColorShader(RC);
@@ -114,6 +120,7 @@ namespace Examples.Simple
 
         public static void Main()
         {
+            Console.WriteLine("Hello world");
             var app = new Simple();
             app.Run();
         }

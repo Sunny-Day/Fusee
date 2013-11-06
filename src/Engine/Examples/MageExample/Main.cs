@@ -13,7 +13,7 @@ namespace Examples.MageExample
     {
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         private static extern bool AttachConsole(int processId);
-
+        private static long maintime;
         #region Shader
 
         private const string VsBump = @"
@@ -156,10 +156,12 @@ namespace Examples.MageExample
 
         public override void Init()
         {
+            //maintime = DateTime.Now.Ticks;
             watch.Stop();
 
             AttachConsole(-1);
-
+            Console.WriteLine("Mage Example Started");
+            //Console.WriteLine("Main startup time (ticks): " + maintime);
             Console.WriteLine("Init Time (ms): " + watch.ElapsedMilliseconds);
             watch.Stop();
             watch.Reset();
@@ -297,6 +299,7 @@ namespace Examples.MageExample
 
         public static void Main()
         {
+            
             watch.Start();
             var app = new MageExample();
             app.Run();

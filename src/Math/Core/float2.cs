@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using ProtoBuf;
 namespace Fusee.Math
 {
     /// <summary>
@@ -8,6 +9,7 @@ namespace Fusee.Math
     /// <remarks>
     /// The float2 structure is suitable for interoperation with unmanaged code requiring two consecutive floats.
     /// </remarks>
+    [ProtoContract]
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public struct float2 : IEquatable<float2>
@@ -17,11 +19,13 @@ namespace Fusee.Math
         /// <summary>
         /// The x component of the float2.
         /// </summary>
+        [ProtoMember(1)]
         public float x;
 
         /// <summary>
         /// The y component of the float2.
         /// </summary>
+        [ProtoMember(2)]
         public float y;
 
         #endregion

@@ -1,17 +1,25 @@
-﻿namespace Fusee.Engine
+﻿using ProtoBuf;
+namespace Fusee.Engine
 {
     /// <summary>
     /// This is the implementation of the <see cref="IMeshImp" /> interface. 
     /// It is used to check the status of the informations of a mesh and flush informations if required.
     /// </summary>
+    [ProtoContract]
     public class MeshImp : IMeshImp
     {
         #region Internal Fields
+        [ProtoMember(1)]
         internal int VertexBufferObject;
+        [ProtoMember(2)]
         internal int NormalBufferObject;
+        [ProtoMember(3)]
         internal int ColorBufferObject;
+        [ProtoMember(4)]
         internal int UVBufferObject;
+        [ProtoMember(5)]
         internal int ElementBufferObject;
+        [ProtoMember(6)]
         internal int NElements;
         #endregion
 
