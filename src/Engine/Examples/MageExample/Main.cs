@@ -52,13 +52,14 @@ namespace Examples.MageExample
             // load meshes
             watch.Start();
             var meshgeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/performancetestmesh.obj.model"));
-            Console.WriteLine("Load 10000 vertices Geometry file Time (ms): " + watch.ElapsedMilliseconds);
+            Console.WriteLine("Load 10000 vertices: " + watch.ElapsedMilliseconds);
             watch.Stop();
             watch.Reset();
             watch.Start();
             Mesh1000verts = meshgeo.ToMesh();
             //Console.WriteLine("Mesh vertex count: " + Mesh1000verts.Vertices.Length);
-            Console.WriteLine("Parse Geometry file to Mesh Time (ms): " + watch.ElapsedMilliseconds);
+            Console.WriteLine("Parse Geometry: " + watch.ElapsedMilliseconds);
+            
             watch.Stop();
             watch.Reset();
             // set up shader, lights and textures
