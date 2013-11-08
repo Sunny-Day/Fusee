@@ -163,11 +163,11 @@ namespace Examples.LinqForGeometry
             _vLightShaderParam = _msDiffuse.GetShaderParam("texture1");
 
             //ImageData imgData = RC.LoadImage("Assets/Textures/Cube_Mat_uv.jpg");
-            //ImageData imgData = RC.LoadImage("Assets/Textures/world_map.jpg");
+            ImageData imgData = RC.LoadImage("Assets/Textures/world_map.jpg");
             //ImageData imgData = RC.LoadImage("Assets/Textures/Teapot_Texture.jpg");
 
             // Due to copyright reasons, this file will not be delivered with the project.
-            ImageData imgData = RC.LoadImage("Assets/Textures/Hellknight.jpg");
+            //ImageData imgData = RC.LoadImage("Assets/Textures/Hellknight.jpg");
 
             _tex = RC.CreateTexture(imgData);
             #endregion TextureShader
