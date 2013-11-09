@@ -10,9 +10,11 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Collections.Generic;
 using System.IO;
+using Fusee.Engine;
 using Fusee.Math;
 
 namespace LinqForGeometry.Core.Importer
@@ -52,10 +54,12 @@ namespace LinqForGeometry.Core.Importer
             Console.WriteLine(LFGMessages.INFO_IMPORTERDISCLAIMER);
             if (File.Exists(pathToAsset))
             {
-                StreamReader assetFile = new StreamReader(pathToAsset);
-                _SassetFileContent = assetFile.ReadToEnd();
-                assetFile.Close();
-                string[] contentAsLines = _SassetFileContent.Split(_SendOfLine, StringSplitOptions.RemoveEmptyEntries);
+                using (var assetFile = new StreamReader(pathToAsset))
+                {
+                    _SassetFileContent = assetFile.ReadToEnd();
+                }
+                
+                string[] contentAsLines = _SassetFileContent.Split(_SendOfLine, StringSplitOptions.None);
 
                 List<String> LitemList = new List<string>();
                 foreach (string line in contentAsLines)
@@ -110,7 +114,7 @@ namespace LinqForGeometry.Core.Importer
                         {
                             if (!str.StartsWith("vt") && !str.Equals(""))
                             {
-                                tmpSave.Add(float.Parse(str, CultureInfo.InvariantCulture));
+                                tmpSave.Add(MeshReader.Double_Parse(str));
                             }
                         }
                         float2 uvVal = new float2(
@@ -132,7 +136,7 @@ namespace LinqForGeometry.Core.Importer
                         {
                             if (!str.StartsWith("v") && !str.Equals(""))
                             {
-                                tmpSave.Add(float.Parse(str, CultureInfo.InvariantCulture));
+                                tmpSave.Add(MeshReader.Double_Parse(str));
                             }
                         }
                         float3 fVal = new float3(
@@ -179,13 +183,13 @@ namespace LinqForGeometry.Core.Importer
                                 {
                                     try
                                     {
-                                        int fv = int.Parse(s, CultureInfo.InvariantCulture);
+                                        int fv = Convert.ToInt32(s);
                                         geoF._LFVertices.Add(LvertexAttr[fv - 1]);
 
                                         if (faceSplit.Length >= 1)
                                         {
                                             string uvIndex = faceSplit[1]; // TODO: Changed for TESTING! Was 1
-                                            int uvAdress = int.Parse(uvIndex, CultureInfo.InvariantCulture);
+                                            int uvAdress = Convert.ToInt32(uvIndex);
                                             geoF._UV.Add(_LuvCoords[uvAdress - 1]);
                                             _LKVuvandvert.Add(new KeyValuePair<int, int>(uvAdress - 1, fv - 1));
                                         }

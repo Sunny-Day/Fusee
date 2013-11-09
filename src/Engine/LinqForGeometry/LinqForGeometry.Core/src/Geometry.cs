@@ -138,19 +138,7 @@ namespace LinqForGeometry.Core
         public void LoadAsset(String path)
         {
             Stopwatch stopWatch = new Stopwatch();
-            TimeSpan timeSpan = new TimeSpan();
-            String timeDone;
-
-            if (Debugger.IsAttached)
-                stopWatch.Start();
-
             List<GeoFace> faceList = _objImporter.LoadAsset(path);
-
-            timeSpan = stopWatch.Elapsed;
-            timeDone = String.Format(LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
-            Debug.WriteLine("\n\n     Time needed to import the .obj file: " + timeDone);
-            stopWatch.Restart();
-            Debug.WriteLine(LFGMessages.INFO_PROCESSINGDS);
 
             // Work on the facelist and transform the data structure to the 'half-edge' data structure.
             foreach (GeoFace gf in faceList)
@@ -158,13 +146,7 @@ namespace LinqForGeometry.Core
                 AddFace(gf);
             }
 
-            if (LFGMessages.FLAG_FUSEE_TRIANGLES)
-            {
-                stopWatch.Stop();
-                timeSpan = stopWatch.Elapsed;
-                timeDone = String.Format(LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
-                Debug.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
-            }
+            stopWatch.Start();
 
             _LfaceNormals.Clear();
             foreach (HandleFace face in _LfaceHndl)
@@ -176,6 +158,9 @@ namespace LinqForGeometry.Core
             {
                 CalcVertexNormal(vertex);
             }
+            
+            stopWatch.Stop();
+            Console.WriteLine("Normalenberechnung: " + stopWatch.ElapsedMilliseconds);
 
             // This is just for now for debugging
             SetVertexDefaults();
@@ -277,7 +262,11 @@ namespace LinqForGeometry.Core
                 HandleVertex v0H = _LhedgePtrCont[h0Cont._he]._v;
                 // Merke die letzte hedge im face hl.
                 //HandleHalfEdge hlH = RetLastHalfEdgeInFaceCw(currentFace);
-                HandleHalfEdge hlH = EnFaceAdjacentHalfEdges(currentFace).Last();
+
+                var temp = EnFaceAdjacentHalfEdges(currentFace);
+
+
+                HandleHalfEdge hlH = temp.ElementAt(temp.Count() - 1);
                 HEdgePtrCont hlCont = _LhedgePtrCont[hlH];
                 // Lege zwei neue hedges an und fülle sie korrekt.
                 int hedgeCount = _LhedgePtrCont.Count;
@@ -502,7 +491,7 @@ namespace LinqForGeometry.Core
             }
 
             // Set the half-edge the face points to.
-            FacePtrCont face = _LfacePtrCont.Last();
+            FacePtrCont face = _LfacePtrCont[_LfacePtrCont.Count - 1];
             face._h = new HandleHalfEdge(LHandleHEForFace.First());
             _LfacePtrCont.RemoveAt(_LfacePtrCont.Count - 1);
             _LfacePtrCont.Add(face);
@@ -635,7 +624,7 @@ namespace LinqForGeometry.Core
                 _LvertexPtrCont[toVert] = new VertexPtrCont() { _h = vertTo._h };
             }
 
-            return _LedgePtrCont.Last()._he1;
+            return _LedgePtrCont[_LedgePtrCont.Count - 1]._he1;
         }
 
         /// <summary>
@@ -957,7 +946,7 @@ namespace LinqForGeometry.Core
         /// <returns>IEnumerable of type HandleVertex</returns>
         public IEnumerable<HandleVertex> EnAllVertices()
         {
-            return _LverticeHndl.AsEnumerable();
+            return _LverticeHndl;
         }
 
         /// <summary>
@@ -966,7 +955,7 @@ namespace LinqForGeometry.Core
         /// <returns>IEnumerable of type HandleEdge</returns>
         public IEnumerable<HandleEdge> EnAllEdges()
         {
-            return _LedgeHndl.AsEnumerable();
+            return _LedgeHndl;
         }
 
         /// <summary>
@@ -975,7 +964,7 @@ namespace LinqForGeometry.Core
         /// <returns>IEnumerable of type HandleFace</returns>
         public IEnumerable<HandleFace> EnAllFaces()
         {
-            return _LfaceHndl.AsEnumerable();
+            return _LfaceHndl;
         }
 
         /// <summary>
@@ -986,7 +975,7 @@ namespace LinqForGeometry.Core
         /// <returns>An Enumerable of VertexHandles to be used in loops, etc.</returns>
         public IEnumerable<HandleVertex> EnStarVertexVertex(HandleVertex vertexHandle)
         {
-            return EnVertexIncomingHalfEdge(vertexHandle).Select(handleHalfEdge => _LhedgePtrCont[_LhedgePtrCont[handleHalfEdge]._he]._v).AsEnumerable();
+            return EnVertexIncomingHalfEdge(vertexHandle).Select(handleHalfEdge => _LhedgePtrCont[_LhedgePtrCont[handleHalfEdge]._he]._v);
         }
 
         /// <summary>
@@ -1017,7 +1006,7 @@ namespace LinqForGeometry.Core
                 currentHedge = _LhedgePtrCont[currentHedgeContainer._he]._nhe;
             } while (currentHedge != startHedgeIndex);
 
-            return LTmpIncomingHedges.AsEnumerable();
+            return LTmpIncomingHedges;
             
             //return _LhedgePtrCont.Where(e => e._v == vertexHandle).AsParallel().Select(e => _LhedgePtrCont[e._he._DataIndex]._he).AsParallel().ToList();
             //return (from e in _LhedgePtrCont where e._v == vertexHandle select _LhedgePtrCont[e._he]._he).AsParallel().ToList();
@@ -1031,7 +1020,7 @@ namespace LinqForGeometry.Core
         /// <returns>An Enumerable of HalfEdge handles to be used in loops, etc.</returns>
         public IEnumerable<HandleHalfEdge> EnVertexOutgoingHalfEdge(HandleVertex vertexHandle)
         {
-            return EnVertexIncomingHalfEdge(vertexHandle).Select(handleHalfEdge => _LhedgePtrCont[handleHalfEdge]._he).AsEnumerable();
+            return EnVertexIncomingHalfEdge(vertexHandle).Select(handleHalfEdge => _LhedgePtrCont[handleHalfEdge]._he);
         }
 
         /// <summary>
@@ -1043,7 +1032,7 @@ namespace LinqForGeometry.Core
         /// <returns>An Enumerable of HalfEdge handles to be used in loops, etc.</returns>
         public IEnumerable<HandleFace> EnVertexAdjacentFaces(HandleVertex vertexHandle)
         {
-            return EnVertexIncomingHalfEdge(vertexHandle).Select(handleHalfEdge => _LhedgePtrCont[handleHalfEdge]._f).AsEnumerable();
+            return EnVertexIncomingHalfEdge(vertexHandle).Select(handleHalfEdge => _LhedgePtrCont[handleHalfEdge]._f);
         }
 
         /// <summary>
@@ -1065,7 +1054,7 @@ namespace LinqForGeometry.Core
 
                 currentIndex = _LhedgePtrCont[currentIndex]._nhe;
             } while (currentIndex != startHedgeIndex);
-            return LHedgeHandles.AsEnumerable();
+            return LHedgeHandles;
         }
 
         /// <summary>
@@ -1076,7 +1065,7 @@ namespace LinqForGeometry.Core
         /// <returns>An Enumerable of vertex handles to be used in loops, etc.</returns>
         public IEnumerable<HandleVertex> EnFaceAdjacentVertices(HandleFace faceHandle)
         {
-            return EnFaceAdjacentHalfEdges(faceHandle).Select(handleHalfEdge => _LhedgePtrCont[handleHalfEdge]._v).AsEnumerable();
+            return EnFaceAdjacentHalfEdges(faceHandle).Select(handleHalfEdge => _LhedgePtrCont[handleHalfEdge]._v);
         }
 
         /// <summary>
@@ -1087,7 +1076,7 @@ namespace LinqForGeometry.Core
         /// <returns>An Enumerable of face handles to be used in loops, etc.</returns>
         public IEnumerable<HandleFace> EnFaceAdjacentFaces(HandleFace faceHandle)
         {
-            return EnFaceAdjacentHalfEdges(faceHandle).Select(handleHalfEdge => _LhedgePtrCont[_LhedgePtrCont[handleHalfEdge]._he]._f).AsEnumerable();
+            return EnFaceAdjacentHalfEdges(faceHandle).Select(handleHalfEdge => _LhedgePtrCont[_LhedgePtrCont[handleHalfEdge]._he]._f);
         }
 
         /* Developing Methods only for testing the data structure algorithms.*/
