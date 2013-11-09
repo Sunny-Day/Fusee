@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Fusee.Math;
 using System.IO;
 using JSIL.Meta;
@@ -172,8 +173,16 @@ namespace Fusee.Engine
                 lineNumber++;
             }
 
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             if (!g.HasNormals)
                 g.CreateNormals(80 * 3.141592 / 180.0);
+
+            stopWatch.Stop();
+            Console.WriteLine("Normalenberechnung: " + stopWatch.ElapsedMilliseconds);
+
+
             return g;
         }
 

@@ -4,6 +4,9 @@ using Fusee.Engine;
 using Fusee.Math;
 using System.Diagnostics;
 using System.IO;
+using Geometry = LinqForGeometry.Core.Geometry;
+using LFG.ExternalModules.Transformations;
+
 namespace Examples.MageExample
 {
 
@@ -39,7 +42,7 @@ namespace Examples.MageExample
         {
 
             AttachConsole(-1);
-
+            
 
             // Für webtest nicht DateTime.Now.Ticks;(nicht implementiert) nutzen!!! (siehe main methode)
             Console.WriteLine("Performance Example Started");
@@ -51,15 +54,37 @@ namespace Examples.MageExample
 
             // load meshes
             watch.Start();
-            var meshgeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/performancetestmesh.obj.model"));
-            Console.WriteLine("Load 10000 vertices: " + watch.ElapsedMilliseconds);
-            watch.Stop();
-            watch.Reset();
-            watch.Start();
-            Mesh1000verts = meshgeo.ToMesh();
+
+            var useLFG = false;
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (useLFG)
+            {
+                var meshgeo = new Geometry();
+                meshgeo.LoadAsset("Assets/performancetestmesh.obj.model");
+                meshgeo._SmoothingAngle = 89.0;
+
+                Console.WriteLine("Load 10000 vertices: " + watch.ElapsedMilliseconds);
+                watch.Stop();
+                watch.Reset();
+                watch.Start();
+                Mesh1000verts = meshgeo.ToMesh();
+            }
+            else
+            {
+                var meshgeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/performancetestmesh.obj.model"));
+
+                Console.WriteLine("Load 10000 vertices: " + watch.ElapsedMilliseconds);
+                watch.Stop();
+                watch.Reset();
+                watch.Start();
+                Mesh1000verts = meshgeo.ToMesh();              
+            }
+
             //Console.WriteLine("Mesh vertex count: " + Mesh1000verts.Vertices.Length);
             Console.WriteLine("Parse Geometry: " + watch.ElapsedMilliseconds);
             
+            //Environment.Exit(0);
+
             watch.Stop();
             watch.Reset();
             // set up shader, lights and textures
@@ -160,7 +185,7 @@ namespace Examples.MageExample
 
         public static void Main()
         {
-            maintime = DateTime.Now.Ticks;
+            //maintime = DateTime.Now.Ticks;
             var app = new MageExample();
             app.Run();
         }
