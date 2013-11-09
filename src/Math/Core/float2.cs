@@ -55,6 +55,16 @@ namespace Fusee.Math
         }
 
         /// <summary>
+        /// Constructs a new float2 from the given double2.
+        /// </summary>
+        /// <param name="v">The double2 to copy components from.</param>
+        public float2(double2 v)
+        {
+            x = (float) v.x;
+            y = (float) v.y;
+        }
+
+        /// <summary>
         /// Constructs a new float2 from the given float3.
         /// </summary>
         /// <param name="v">The float3 to copy components from. Z is discarded.</param>

@@ -55,6 +55,19 @@ namespace Fusee.Math
         }
 
         /// <summary>
+        /// Constructs a new float3.
+        /// </summary>
+        /// <param name="x">The x component of the float3.</param>
+        /// <param name="y">The y component of the float3.</param>
+        /// <param name="z">The z component of the float3.</param>
+        public float3(double x, double y, double z)
+        {
+            this.x = (float) x;
+            this.y = (float) y;
+            this.z = (float) z;
+        }
+
+        /// <summary>
         /// Constructs a new float3 from the given float2.
         /// </summary>
         /// <param name="v">The float2 to copy components from.</param>
@@ -74,6 +87,17 @@ namespace Fusee.Math
             x = v.x;
             y = v.y;
             z = v.z;
+        }
+
+        /// <summary>
+        /// Constructs a new float3 from the given double3.
+        /// </summary>
+        /// <param name="v">The double3 to copy components from.</param>
+        public float3(double3 v)
+        {
+            x = (float) v.x;
+            y = (float) v.y;
+            z = (float) v.z;
         }
 
         /// <summary>

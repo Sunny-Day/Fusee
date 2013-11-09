@@ -37,7 +37,7 @@ namespace Fusee.Engine
         public static Geometry ReadWavefrontObj(TextReader tr)
         {
             const int nMaxInx = 256;
-            Geometry g = new Geometry();
+            var g = new Geometry();
 
             int nFaceRefs = 0;
             int lineNumber = 1;
@@ -66,7 +66,6 @@ namespace Fusee.Engine
                 {
                     // Normals
                     string tmp = line.Substring(3);
-
                     string[] values = FilteredSplit(tmp, null);
 
                     g.AddNormal(new double3(Double_Parse(values[0]),
@@ -77,7 +76,6 @@ namespace Fusee.Engine
                 {
                     // Positions.
                     string tmp = line.Substring(2);
-
                     string[] values = FilteredSplit(tmp, null);
 
                     g.AddVertex(new double3(Double_Parse(values[0]),
@@ -91,17 +89,17 @@ namespace Fusee.Engine
                     string[] values = FilteredSplit(tmp, null);
 
                     if (!(3 <= values.Length && values.Length < nMaxInx))
-                    {
                         throw new Exception("Error reading obj file (" + lineNumber + "). Face definition number of vertices must be within [3.." + nMaxInx + "].");                        
-                    }
 
                     int[] vI = new int[values.Length];
                     int[] nI = null;
                     int[] tI = null;
+
                     int i = 0;
                     foreach (string vRef in values)
                     {
                         string[] vDef = vRef.Split('/');
+
                         if (nFaceRefs == 0)
                         {
                             if (!(1 <= vDef.Length && vDef.Length <= 3))
@@ -120,6 +118,7 @@ namespace Fusee.Engine
                         {
                             if (tI == null)
                                 tI = new int[values.Length];
+
                             tI[i] = int.Parse(vDef[1])-1;
                         }
 
@@ -130,8 +129,10 @@ namespace Fusee.Engine
 
                             if (nI == null)
                                 nI = new int[values.Length];
+
                             nI[i] = int.Parse(vDef[2])-1;
                         }
+
                         i++;
                     }
 
@@ -173,15 +174,8 @@ namespace Fusee.Engine
                 lineNumber++;
             }
 
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-
             if (!g.HasNormals)
                 g.CreateNormals(80 * 3.141592 / 180.0);
-
-            stopWatch.Stop();
-            Console.WriteLine("Normalenberechnung: " + stopWatch.ElapsedMilliseconds);
-
 
             return g;
         }
