@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Fusee.Math;
 using JSIL.Meta;
+using JSIL.Runtime;
 
 namespace Fusee.Engine
 {
@@ -17,7 +18,7 @@ namespace Fusee.Engine
         /// A container that stores indices for vertices, normals and texture coordinates.
         /// The values are used for conversion to different geometry face formats, e.g. Triangles.
         /// </summary>
-        public class Face
+        public struct Face
         {
             /// <summary>
             /// The inx vert
@@ -258,17 +259,18 @@ namespace Fusee.Engine
         /// <summary>
         /// Gets all faces containing a certain vertex.
         /// </summary>
+        /// <param name="packedFaces"></param>
         /// <param name="iV">The index of the vertex.</param>
         /// <param name="vertInFace">Out parameter: A list of indices of the vertex in each respecitve face.</param>
         /// <returns>A list of indices containing the vertex.</returns>
-        public IList<int> GetAllFacesContainingVertex(int iV, out IList<int> vertInFace)
+        public IList<int> GetAllFacesContainingVertex(Face[] packedFaces, int iV, out IList<int> vertInFace)
         {
             List<int> ret = new List<int>();
             vertInFace = new List<int>();
 
             for (int iF = 0; iF < _faces.Count; iF++)
             {
-                var inxVert = _faces[iF].InxVert;
+                var inxVert = packedFaces[iF].InxVert;
 
                 for (int iFV = 0; iFV < inxVert.Length; iFV++)
                 {
@@ -301,9 +303,6 @@ namespace Fusee.Engine
             return double3.Normalize(double3.Cross(v1, v2));
         }
 
-        // packed array / typed array for JS
-        private double3[] _packedNormals;
-
         /// <summary>
         /// Creates normals for the entire geometry based on a given smoothing angle.
         /// </summary>
@@ -311,29 +310,29 @@ namespace Fusee.Engine
         public void CreateNormals(double smoothingAngle)
         {
             double cSmoothingAngle = System.Math.Cos(smoothingAngle);
+            var packedFaces = _faces.ToArray();
 
             for (int iV = 0; iV < _vertices.Count; iV++)
             {
                 IList<int> vertInFace;
-                IList<int> facesWithIV = GetAllFacesContainingVertex(iV, out vertInFace);
+                IList<int> facesWithIV = GetAllFacesContainingVertex(packedFaces, iV, out vertInFace);
 
-                _packedNormals = new double3[facesWithIV.Count];
-
+                var packedNormals = new double3[facesWithIV.Count];
                 for (int i = 0; i < facesWithIV.Count; i++)
-                    _packedNormals[i] = CalcFaceNormal(_faces[facesWithIV[i]]);
+                    packedNormals[i] = CalcFaceNormal(packedFaces[facesWithIV[i]]);
 
                 // Quick and dirty solution: if the smoothing angle holds for all combinations we create a shared normal,
                 // otherwise we create individual normals for each face. 
                 // TODO: Build groups of shared normmals where faces are connected by edges (need edges to do this)
 
                 bool smoothIt = true;
-                for (int i = 0; i < _packedNormals.Length; i++)
+                for (int i = 0; i < packedNormals.Length; i++)
                 {
-                    var packedNormalsI = _packedNormals[i];
+                    var packedNormalsI = packedNormals[i];
 
-                    for (int j = i + 1; j < _packedNormals.Length; j++)
+                    for (int j = i + 1; j < packedNormals.Length; j++)
                     {
-                        if (double3.Dot(packedNormalsI, _packedNormals[j]) < cSmoothingAngle)
+                        if (double3.Dot(packedNormalsI, packedNormals[j]) < cSmoothingAngle)
                         {
                             smoothIt = false;
                             break;
@@ -350,40 +349,42 @@ namespace Fusee.Engine
                     var daNormal = new double3 { x = 0, y = 0, z = 0 };
 
                     // ReSharper disable once LoopCanBeConvertedToQuery
-                    foreach (var n in _packedNormals)
+                    foreach (var n in packedNormals)
                         daNormal += n;
                     
-                    daNormal /= (double)_packedNormals.Length;
+                    daNormal /= (double)packedNormals.Length;
 
                     int iN = AddNormal(daNormal);
                     for (int i = 0; i < facesWithIV.Count; i++)
                     {
                         var curFacesWithIV = facesWithIV[i];
-                        var curFace = _faces[curFacesWithIV];
+                        var curFace = packedFaces[curFacesWithIV];
 
                         if (curFace.InxNormal == null)
-                            _faces[curFacesWithIV].InxNormal = new int[curFace.InxVert.Length];
+                            packedFaces[curFacesWithIV].InxNormal = new int[curFace.InxVert.Length];
 
-                        _faces[curFacesWithIV].InxNormal[vertInFace[i]] = iN;
+                        packedFaces[curFacesWithIV].InxNormal[vertInFace[i]] = iN;
                     }
                 }
                 else
                 {
                     // create individual normals and assign to respective face vertices
-                    for (int i = 0; i < _packedNormals.Length; i++)
+                    for (int i = 0; i < packedNormals.Length; i++)
                     {
                         var curFacesWithIV = facesWithIV[i];
-                        var curFace = _faces[curFacesWithIV];
+                        var curFace = packedFaces[curFacesWithIV];
 
-                        int iN = AddNormal(_packedNormals[i]);
+                        int iN = AddNormal(packedNormals[i]);
 
                         if (curFace.InxNormal == null)
-                            _faces[curFacesWithIV].InxNormal = new int[curFace.InxVert.Length];
+                            packedFaces[curFacesWithIV].InxNormal = new int[curFace.InxVert.Length];
 
-                        _faces[curFacesWithIV].InxNormal[vertInFace[i]] = iN;
+                        packedFaces[curFacesWithIV].InxNormal[vertInFace[i]] = iN;
                     }
                 }
             }
+
+            _faces = packedFaces.ToList();
         }
 
 
@@ -409,7 +410,6 @@ namespace Fusee.Engine
 
         #endregion
 
-
         /// <summary>
         /// Converts the whole geomentry to a <see cref="Mesh"/>.
         /// </summary>
@@ -417,12 +417,9 @@ namespace Fusee.Engine
         public Mesh ToMesh()
         {
             // TODO: make a big case decision based on HasTexCoords and HasNormals around the implementation and implement each case individually
-            var _vDict = new Dictionary<TripleInx, int>();
-
-            List<short> mTris = new List<short>();
-            List<float3> mVerts = new List<float3>();
-            List<float2> mTexCoords = (HasTexCoords) ? new List<float2>() : null;
-            List<float3> mNormals = (HasNormals) ? new List<float3>() : null;
+            var vDict = new Dictionary<TripleInx, int>();
+            var vKeys = new List<TripleInx>();
+            var mTris = new List<short>();
 
             foreach (Face f in _faces)
             {
@@ -437,19 +434,11 @@ namespace Fusee.Engine
                     };
 
                     int inx;
-                    if (!_vDict.TryGetValue(ti, out inx))
+                    if (!vDict.TryGetValue(ti, out inx))
                     {
-                        // Create a new vertex triplet combination
-                        mVerts.Add(new float3(_vertices[ti.iV]));
-
-                        if (HasTexCoords && mTexCoords != null)
-                            mTexCoords.Add(new float2(_texCoords[ti.iT]));
-                        
-                        if (HasNormals && mNormals != null)
-                            mNormals.Add(new float3(_normals[ti.iN]));
-
-                        inx = mVerts.Count - 1;
-                        _vDict.Add(ti, inx);
+                        inx = vDict.Count;
+                        vDict.Add(ti, inx);
+                        vKeys.Add(ti);
                     }
 
                     mFace[i] = inx;
@@ -458,13 +447,35 @@ namespace Fusee.Engine
                 mTris.AddRange(Triangulate(f, mFace));
             }
 
-            var m = new Mesh {Vertices = mVerts.ToArray()};
+            // Create Mesh
+            var m = new Mesh();
+            
+            // Vertices
+            m.Vertices = PackedArray.New<float3>(vKeys.Count);
 
-            if (HasNormals && mNormals != null)
-                m.Normals = mNormals.ToArray();
+            int iVs = 0;
+            foreach (var val in vKeys)
+                m.Vertices[iVs++] = new float3(_vertices[val.iV]);
 
-            if (HasTexCoords && mTexCoords != null)
-                m.UVs = mTexCoords.ToArray();
+            // UVs
+            if (HasTexCoords)
+            {
+                m.UVs = PackedArray.New<float2>(_vertices.Count);
+
+                int i = 0;
+                foreach (var val in vKeys)
+                    m.UVs[i++] = new float2(_texCoords[val.iT]);
+            }
+
+            // Normals
+            if (HasNormals)
+            {
+                m.Normals = PackedArray.New<float3>(_vertices.Count);
+
+                int i = 0;
+                foreach (var val in vKeys)
+                    m.Normals[i++] = new float3(_normals[val.iN]);
+            }
 
             m.Triangles = mTris.ToArray();
 

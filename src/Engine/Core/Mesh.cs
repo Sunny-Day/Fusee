@@ -1,5 +1,5 @@
-﻿using Fusee.Engine;
-using Fusee.Math;
+﻿using Fusee.Math;
+using JSIL.Meta;
 using ProtoBuf;
 namespace Fusee.Engine
 {
@@ -12,9 +12,10 @@ namespace Fusee.Engine
     public class Mesh
     {
         #region Fields
-        [ProtoMember(1)]
+
         internal IMeshImp _meshImp;
-        [ProtoMember(2)]
+
+        [JSPackedArray]
         private float3[] _vertices;
         /// <summary>
         /// Gets or sets the vertices.
@@ -24,9 +25,12 @@ namespace Fusee.Engine
         /// </value>
         public float3[] Vertices
         {
+            [JSPackedArrayReturnValue]
             get { return _vertices; }
+            [JSPackedArrayArguments("value")]
             set { if (_meshImp!= null) _meshImp.InvalidateVertices(); _vertices = value; }
         }
+
         /// <summary>
         /// Gets a value indicating whether vertices are set.
         /// </summary>
@@ -34,7 +38,7 @@ namespace Fusee.Engine
         ///   <c>true</c> if vertices are set; otherwise, <c>false</c>.
         /// </value>
         public bool VerticesSet { get { return (_meshImp!= null) && _meshImp.VerticesSet; } }
-        [ProtoMember(3)]
+
         private uint[] _colors;
         /// <summary>
         /// Gets or sets the color of a single vertex.
@@ -54,7 +58,8 @@ namespace Fusee.Engine
         ///   <c>true</c> if a colore is set; otherwise, <c>false</c>.
         /// </value>
         public bool ColorsSet { get { return (_meshImp != null) && _meshImp.ColorsSet; } }
-        [ProtoMember(4)]
+
+        [JSPackedArray]
         private float3[] _normals;
         /// <summary>
         /// Gets or sets the normals.
@@ -64,7 +69,9 @@ namespace Fusee.Engine
         /// </value>
         public float3[] Normals
         {
+            [JSPackedArrayReturnValue]
             get { return _normals; }
+            [JSPackedArrayArguments("value")]
             set { if (_meshImp != null) _meshImp.InvalidateNormals(); _normals = value; }
         }
         /// <summary>
@@ -74,7 +81,8 @@ namespace Fusee.Engine
         ///   <c>true</c> if normals are set; otherwise, <c>false</c>.
         /// </value>
         public bool NormalsSet { get { return (_meshImp != null) && _meshImp.NormalsSet; } }
-        [ProtoMember(5)]
+
+        [JSPackedArray]
         private float2[] _uvs;
         /// <summary>
         /// Gets or sets the UV-coordinates.
@@ -84,7 +92,9 @@ namespace Fusee.Engine
         /// </value>
         public float2[] UVs
         {
+            [JSPackedArrayReturnValue]
             get { return _uvs; }
+            [JSPackedArrayArguments("value")]
             set { if (_meshImp != null) _meshImp.InvalidateUVs(); _uvs = value; }
         }
         /// <summary>
@@ -94,7 +104,7 @@ namespace Fusee.Engine
         ///   <c>true</c> if UVs are set; otherwise, <c>false</c>.
         /// </value>
         public bool UVsSet { get { return (_meshImp != null) && _meshImp.UVsSet; } }
-        [ProtoMember(6)]
+
         private short[] _triangles;
         /// <summary>
         /// Gets or sets the triangles.
@@ -114,6 +124,7 @@ namespace Fusee.Engine
         ///   <c>true</c> if triangles are set; otherwise, <c>false</c>.
         /// </value>
         public bool TrianglesSet { get { return (_meshImp != null) && _meshImp.TrianglesSet; } }
+
         #endregion
 
     }

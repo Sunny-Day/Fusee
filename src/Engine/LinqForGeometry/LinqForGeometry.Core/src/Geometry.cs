@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading;
 using Fusee.Math;
 using Fusee.Engine;
+using JSIL.Runtime;
 using LinqForGeometry.Core.Exceptions;
 using LinqForGeometry.Core.Handles;
 using LinqForGeometry.Core.Importer;
@@ -137,7 +138,6 @@ namespace LinqForGeometry.Core
         /// <param name="path">Path to the wavefront.obj.model file.</param>
         public void LoadAsset(String path)
         {
-            Stopwatch stopWatch = new Stopwatch();
             List<GeoFace> faceList = _objImporter.LoadAsset(path);
 
             // Work on the facelist and transform the data structure to the 'half-edge' data structure.
@@ -145,8 +145,6 @@ namespace LinqForGeometry.Core
             {
                 AddFace(gf);
             }
-
-            stopWatch.Start();
 
             _LfaceNormals.Clear();
             foreach (HandleFace face in _LfaceHndl)
@@ -159,8 +157,7 @@ namespace LinqForGeometry.Core
                 CalcVertexNormal(vertex);
             }
             
-            stopWatch.Stop();
-            Console.WriteLine("Normalenberechnung: " + stopWatch.ElapsedMilliseconds);
+
 
             // This is just for now for debugging
             SetVertexDefaults();
@@ -200,7 +197,8 @@ namespace LinqForGeometry.Core
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
                     _NormalCalcStopWatch.Stop();
-                    Debug.WriteLine("Time taken to compute vertex normals: " + _NormalCalcStopWatch.ElapsedMilliseconds + " ms");
+                    Debug.WriteLine("Time taken to compute vertex normals: " + _NormalCalcStopWatch.ElapsedMilliseconds +
+                                    " ms");
                 }
 
             }
@@ -212,7 +210,9 @@ namespace LinqForGeometry.Core
 
             foreach (HandleFace faceHandle in _LfaceHndl)
             {
-                foreach (HEdgePtrCont currentContainer in EnFaceAdjacentHalfEdges(faceHandle).Select(handleHalfEdge => _LhedgePtrCont[handleHalfEdge]))
+                foreach (
+                    HEdgePtrCont currentContainer in
+                        EnFaceAdjacentHalfEdges(faceHandle).Select(handleHalfEdge => _LhedgePtrCont[handleHalfEdge]))
                 {
                     _LvertDataFuseeMesh.Add(_LvertexVal[currentContainer._v]);
                     if (_VertexNormalActive || _LVertexNormals != null)
@@ -224,17 +224,29 @@ namespace LinqForGeometry.Core
                     {
                         _LvertuvFuseeMesh.Add(_LuvCoordinates[currentContainer._vuv]);
                     }
-                    _LtrianglesFuseeMesh.Add((short)(_LvertDataFuseeMesh.Count - 1));
+                    _LtrianglesFuseeMesh.Add((short) (_LvertDataFuseeMesh.Count - 1));
                 }
             }
 
             Mesh fuseeMesh = new Mesh();
-            fuseeMesh.Vertices = _LvertDataFuseeMesh.ToArray();
+            fuseeMesh.Vertices = PackedArray.New<float3>(_LvertDataFuseeMesh.Count);
+
+            for (int i = 0; i < _LvertuvFuseeMesh.Count; i++)
+                fuseeMesh.Vertices[i] = _LvertDataFuseeMesh[i];
 
             if (_VertexNormalActive || _LvertNormalsFuseeMesh != null)
-                fuseeMesh.Normals = _LvertNormalsFuseeMesh.ToArray();
+            {
+                fuseeMesh.Normals = PackedArray.New<float3>(_LvertNormalsFuseeMesh.Count);
 
-            fuseeMesh.UVs = _LvertuvFuseeMesh.ToArray();
+                for (int i = 0; i < _LvertNormalsFuseeMesh.Count; i++)
+                    fuseeMesh.Normals[i] = _LvertNormalsFuseeMesh[i];
+            }
+
+            fuseeMesh.UVs = PackedArray.New<float2>(_LvertuvFuseeMesh.Count);
+
+            for (int i = 0; i < _LvertuvFuseeMesh.Count; i++)
+                fuseeMesh.UVs[i] = _LvertuvFuseeMesh[i];
+
             fuseeMesh.Triangles = _LtrianglesFuseeMesh.ToArray();
 
             return fuseeMesh;
@@ -422,6 +434,9 @@ namespace LinqForGeometry.Core
         /// <param name="gf">GeoFace object from the importer</param>
         private void AddFace(GeoFace gf)
         {
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             // Add a face container.
             _LfacePtrCont.Add(
                 new FacePtrCont()
@@ -437,6 +452,9 @@ namespace LinqForGeometry.Core
                 new HandleFace() { _DataIndex = _LfacePtrCont.Count - 1 }
                 );
 
+            var step1 = stopWatch.ElapsedTicks;
+
+
             // Insert all the vertices for the face.
             List<HandleVertex> LHandleVertsForFace = new List<HandleVertex>();
             foreach (float3 vVal in gf._LFVertices)
@@ -445,6 +463,7 @@ namespace LinqForGeometry.Core
                     AddVertex(vVal)
                     );
             }
+
             // Insert all the uv coordinates for the face.
             List<HandleVertexUV> LHandleUVsForFace = new List<HandleVertexUV>();
             foreach (float2 uvVal in gf._UV)
@@ -453,17 +472,22 @@ namespace LinqForGeometry.Core
                 LHandleUVsForFace.Add(new HandleVertexUV() { _DataIndex = _LuvCoordinates.Count - 1 });
             }
 
+            var step2 = stopWatch.ElapsedTicks;
+
             // Build up the half-edge connections for the face
-            List<HandleHalfEdge> LHandleHEForFace = new List<HandleHalfEdge>();
+            var LHandleHEForFace = new List<HandleHalfEdge>();
+            var LHVFF0 = LHandleVertsForFace[0];
             for (int i = 0; i < LHandleVertsForFace.Count; i++)
             {
                 HandleVertex fromVert = LHandleVertsForFace[i];
-                HandleVertex toVert = i + 1 < LHandleVertsForFace.Count ? LHandleVertsForFace[i + 1] : LHandleVertsForFace[0];
+                HandleVertex toVert = i + 1 < LHandleVertsForFace.Count ? LHandleVertsForFace[i + 1] : LHVFF0;
 
                 LHandleHEForFace.Add(
                         CreateConnection(fromVert, toVert)
                     );
             }
+
+            var step3 = stopWatch.ElapsedTicks;
 
             // Loop over all the half-edges for the face and concat them and set the correct uv coordinates.
             for (int i = 0; i < LHandleHEForFace.Count; i++)
@@ -490,11 +514,20 @@ namespace LinqForGeometry.Core
                 };
             }
 
+            var step4 = stopWatch.ElapsedTicks;
             // Set the half-edge the face points to.
             FacePtrCont face = _LfacePtrCont[_LfacePtrCont.Count - 1];
             face._h = new HandleHalfEdge(LHandleHEForFace.First());
             _LfacePtrCont.RemoveAt(_LfacePtrCont.Count - 1);
             _LfacePtrCont.Add(face);
+
+            stopWatch.Stop();
+            if (stopWatch.ElapsedTicks > 10000)
+            {
+                Console.WriteLine("Normalenberechnung: " + stopWatch.ElapsedTicks);
+                Console.WriteLine(step1 + " - " + step2 + " - " + step3 + " - " + step4);
+                Environment.Exit(0);
+            }
         }
 
         /// <summary>
@@ -531,21 +564,23 @@ namespace LinqForGeometry.Core
         private HandleHalfEdge ReuseExistingConnection(HandleEdge existingEdge, HandleVertex fromVert, HandleVertex toVert)
         {
             // Check half-edge 1 and 2 if one points to the actual face. This is the one we use for our face then. If no one we build a new connection.
-            HEdgePtrCont hedge1 = _LhedgePtrCont[_LedgePtrCont[existingEdge]._he1];
-            HEdgePtrCont hedge2 = _LhedgePtrCont[_LedgePtrCont[existingEdge]._he2];
+            var lpc1 = _LedgePtrCont[existingEdge]._he1;
+            var lpc2 = _LedgePtrCont[existingEdge]._he2;
+            HEdgePtrCont hedge1 = _LhedgePtrCont[lpc1];
+            HEdgePtrCont hedge2 = _LhedgePtrCont[lpc2];
 
             HandleHalfEdge hedgeToUse = new HandleHalfEdge(-1);
 
             if (hedge2._f == -1)
             {
                 // It is hedge 2 that is free. We should use it.
-                hedgeToUse = _LedgePtrCont[existingEdge]._he2;
+                hedgeToUse = lpc2;
 
             }
             else if (hedge1._f == -1)
             {
                 // It is hedge 1 that is free. We should use it. Should never happen. TODO: Exception throw?
-                hedgeToUse = _LedgePtrCont[existingEdge]._he1;
+                hedgeToUse = lpc1;
             }
             else
             {

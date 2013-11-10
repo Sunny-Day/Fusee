@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using JSIL.Meta;
 using Fusee.Math;
 namespace Fusee.Engine

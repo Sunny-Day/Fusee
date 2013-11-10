@@ -265,6 +265,7 @@ namespace Fusee.Engine
         /// <param name="vertices">The vertices.</param>
         /// <exception cref="System.ArgumentException">Vertices must not be null or empty</exception>
         /// <exception cref="System.ApplicationException"></exception>
+        [JSPackedArrayArguments("vertices")]
         void SetVertices(IMeshImp mesh, float3[] vertices);
 
         /// <summary>
@@ -274,6 +275,7 @@ namespace Fusee.Engine
         /// <param name="normals">The normals.</param>
         /// <exception cref="System.ArgumentException">Normals must not be null or empty</exception>
         /// <exception cref="System.ApplicationException"></exception>
+        [JSPackedArrayArguments("normals")]
         void SetNormals(IMeshImp mr, float3[] normals);
 
         /// <summary>
@@ -283,6 +285,7 @@ namespace Fusee.Engine
         /// <param name="uvs">The UV's.</param>
         /// <exception cref="System.ArgumentException">UVs must not be null or empty</exception>
         /// <exception cref="System.ApplicationException"></exception>
+        [JSPackedArrayArguments("uvs")]
         void SetUVs(IMeshImp mr, float2[] uvs);
 
         /// <summary>

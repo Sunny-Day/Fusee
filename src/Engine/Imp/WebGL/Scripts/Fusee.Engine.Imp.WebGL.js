@@ -888,24 +888,17 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     $.Method({ Static: false, Public: true }, "SetUVs",
         new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$.UInt32])]),
         function SetUVs(mr, uvs) {
-            if (uvs == null || uvs.length == 0) {
+            if (uvs == null || uvs.get_Length() == 0) {
                 throw new Exception("UVs must not be null or empty");
             }
 
             var UvBytes;
-            var UvBytes = uvs.length * 2 * 4;
+            var UvBytes = uvs.get_Length() * 2 * 4;
             if (mr.UVBufferObject == null)
                 mr.UVBufferObject = this.gl.createBuffer();
 
-            var nInts = uvs.length;
-            var flatBuffer = new Float32Array(uvs.length * 2);
-            for (var i = 0; i < uvs.length; i++) {
-                flatBuffer[2 * i + 0] = uvs[i].x;
-                flatBuffer[2 * i + 1] = uvs[i].y;
-            }
-
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mr.UVBufferObject);
-            this.gl.bufferData(this.gl.ARRAY_BUFFER, flatBuffer, this.gl.STATIC_DRAW);
+            this.gl.bufferData(this.gl.ARRAY_BUFFER, uvs.buffer, this.gl.STATIC_DRAW);
             vboBytes = this.gl.getBufferParameter(this.gl.ARRAY_BUFFER, this.gl.BUFFER_SIZE);
             if (vboBytes != UvBytes)
                 throw new Exception("Problem uploading UV buffer to VBO (UVs). Tried to upload " + UvBytes + " bytes, uploaded " + UvBytes + ".");
@@ -915,25 +908,17 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     $.Method({ Static: false, Public: true }, "SetNormals",
         new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$asm00.TypeRef("Fusee.Math.float3")])]),
         function SetNormals(mr, normals) {
-            if (normals == null || normals.length == 0) {
+            if (normals == null || normals.get_Length() == 0) {
                 throw new Exception("Normals must not be null or empty");
             }
 
             var vboBytes;
-            var normsBytes = normals.length * 3 * 4;
+            var normsBytes = normals.get_Length() * 3 * 4;
             if (mr.NormalBufferObject == null)
                 mr.NormalBufferObject = this.gl.createBuffer();
 
-            var nFloats = normals.length * 3;
-            var flatBuffer = new Float32Array(nFloats);
-            for (var i = 0; i < normals.length; i++) {
-                flatBuffer[3 * i + 0] = normals[i].x;
-                flatBuffer[3 * i + 1] = normals[i].y;
-                flatBuffer[3 * i + 2] = normals[i].z;
-            }
-
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mr.NormalBufferObject);
-            this.gl.bufferData(this.gl.ARRAY_BUFFER, flatBuffer, this.gl.STATIC_DRAW);
+            this.gl.bufferData(this.gl.ARRAY_BUFFER, normals.buffer, this.gl.STATIC_DRAW);
             vboBytes = this.gl.getBufferParameter(this.gl.ARRAY_BUFFER, this.gl.BUFFER_SIZE);
             if (vboBytes != normsBytes)
                 throw new Exception("Problem uploading normal buffer to VBO (normals). Tried to upload " + normsBytes + " bytes, uploaded " + vboBytes + ".");
@@ -971,25 +956,17 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     $.Method({ Static: false, Public: true }, "SetVertices",
         new JSIL.MethodSignature(null, [$WebGLImp.TypeRef("Fusee.Engine.IMeshImp"), $jsilcore.TypeRef("System.Array", [$asm00.TypeRef("Fusee.Math.float3")])]),
         function SetVertices(mr, vertices) {
-            if (vertices == null || vertices.length == 0) {
+            if (vertices == null || vertices.get_Length() == 0) {
                 throw new Exception("vertices must not be null or empty");
             }
 
             var vboBytes;
-            var vertsBytes = vertices.length * 3 * 4;
+            var vertsBytes = vertices.get_Length() * 3 * 4;
             if (mr.VertexBufferObject == null)
                 mr.VertexBufferObject = this.gl.createBuffer();
 
-            var nFloats = vertices.length * 3;
-            var flatBuffer = new Float32Array(nFloats);
-            for (var i = 0; i < vertices.length; i++) {
-                flatBuffer[3 * i + 0] = vertices[i].x;
-                flatBuffer[3 * i + 1] = vertices[i].y;
-                flatBuffer[3 * i + 2] = vertices[i].z;
-            }
-
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mr.VertexBufferObject);
-            this.gl.bufferData(this.gl.ARRAY_BUFFER, flatBuffer, this.gl.STATIC_DRAW);
+            this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices.buffer, this.gl.STATIC_DRAW);
             vboBytes = this.gl.getBufferParameter(this.gl.ARRAY_BUFFER, this.gl.BUFFER_SIZE);
             if (vboBytes != vertsBytes)
                 throw new Exception("Problem uploading normal buffer to VBO (vertices). Tried to upload " + vertsBytes + " bytes, uploaded " + vboBytes + ".");

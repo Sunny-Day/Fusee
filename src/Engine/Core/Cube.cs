@@ -1,4 +1,5 @@
 ﻿using Fusee.Math;
+using JSIL.Runtime;
 
 namespace Fusee.Engine
 {
@@ -17,8 +18,8 @@ namespace Fusee.Engine
         {
             #region Fields
 
-            // TODO: Remove redundant vertices
-            Vertices = new[]
+            // Vertices
+            var verts = new[]
             {
                 new float3 {x = +0.5f, y = -0.5f, z = +0.5f},
                 new float3 {x = +0.5f, y = +0.5f, z = +0.5f},
@@ -46,6 +47,11 @@ namespace Fusee.Engine
                 new float3 {x = -0.5f, y = -0.5f, z = -0.5f}
             };
 
+            Vertices = PackedArray.New<float3>(verts.Length);
+            for (int i = 0; i < verts.Length; i++)
+                Vertices[i] = verts[i];
+
+            // Triangles
             Triangles = new short[]
             {
                 // front face
@@ -67,7 +73,8 @@ namespace Fusee.Engine
                 20, 21, 22, 20, 22, 23
             };
 
-            Normals = new[]
+            // Normals
+            var norms = new[]
             {
                 new float3(0, 0, 1),
                 new float3(0, 0, 1),
@@ -95,7 +102,12 @@ namespace Fusee.Engine
                 new float3(0, -1, 0)
             };
 
-            UVs = new[]
+            Normals = PackedArray.New<float3>(norms.Length);
+            for (int i = 0; i < norms.Length; i++)
+                Normals[i] = norms[i];
+
+            // UVs
+            var tex = new[]
             {
                 new float2(1, 0),
                 new float2(1, 1),
@@ -122,8 +134,12 @@ namespace Fusee.Engine
                 new float2(0, 1),
                 new float2(0, 0)
             };
+
+            UVs = PackedArray.New<float2>(tex.Length);
+            for (int i = 0; i < tex.Length; i++)
+                UVs[i] = tex[i];
         }
 
-            #endregion
+        #endregion
     }
 }
