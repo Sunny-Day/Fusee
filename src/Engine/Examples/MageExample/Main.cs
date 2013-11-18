@@ -4,6 +4,8 @@ using Fusee.Engine;
 using Fusee.Math;
 using System.Diagnostics;
 using System.IO;
+using JSIL.Meta;
+using JSIL.Runtime;
 using Geometry = LinqForGeometry.Core.Geometry;
 using LFG.ExternalModules.Transformations;
 
@@ -38,52 +40,112 @@ namespace Examples.MageExample
             watch.Start();
         }
 
-        public override void Init()
+        private struct Vertex
         {
+            internal float3 Position;
+            internal float3 Normals;
+            internal float2 UVs;
+        }
 
+        private Vertex[] VerticesN;
+
+        [JSPackedArray]
+        private Vertex[] VerticesP;
+
+        public unsafe override void Init()
+        {
             AttachConsole(-1);
-            
 
-            // Für webtest nicht DateTime.Now.Ticks;(nicht implementiert) nutzen!!! (siehe main methode)
-            Console.WriteLine("Performance Example Started");
-            Console.WriteLine("Main startup time (ticks): " + maintime);
-            Console.WriteLine("Init Time (ms): " + watch.ElapsedMilliseconds);
+            Console.WriteLine("a: " + maintime);
+            Console.WriteLine("b: " + watch.ElapsedMilliseconds);
+
             watch.Stop();
             watch.Reset();
+
+            const int values = 1000000;
+            VerticesN = new Vertex[values];
+            VerticesP = PackedArray.New<Vertex>(values);
+
+            for (int i = 0; i < VerticesN.Length; i++)
+            {
+                VerticesN[i].Position = new float3(i, i, i);
+                VerticesN[i].Normals = new float3(i, i, i);
+                VerticesN[i].UVs = new float2(i, i);
+
+                VerticesP[i].Position = new float3(i, i, i);
+                VerticesP[i].Normals = new float3(i, i, i);
+                VerticesP[i].UVs = new float2(i, i);
+            }
+
+            watch.Reset();
+            watch.Start();
+
+            for (int i = 0; i < VerticesN.Length; i++)
+            {
+                var x = VerticesN[i].Normals;
+                VerticesN[i].Normals = VerticesN[i].Position;
+                VerticesN[i].Position = x;
+                VerticesN[i].UVs = VerticesN[i].UVs - new float2(1, 1);
+            }
+
+            watch.Stop();
+            Console.WriteLine("c: " + watch.ElapsedMilliseconds);
+            watch.Reset();
+            watch.Start();
+
+                /*fixed (Vertex* p = &VerticesP[0])
+                {
+                    var pt = (float*) p;
+
+                    for (int i = 0; i < VerticesP.Length; i++)
+                    {
+                        var x = pt[i*8 + 3];
+                        var y = pt[i*8 + 4];
+                        var z = pt[i*8 + 5];
+
+                        pt[i*8 + 3] = pt[i*8 + 0];
+                        pt[i*8 + 4] = pt[i*8 + 1];
+                        pt[i*8 + 5] = pt[i*8 + 2];
+
+                        pt[i*8 + 3] = x;
+                        pt[i*8 + 4] = y;
+                        pt[i*8 + 5] = z;
+
+                        pt[i*8 + 6] = pt[i*8 + 6] - 1;
+                        pt[i*8 + 7] = pt[i*8 + 7] - 1;
+                    }
+                }*/
+
+            watch.Stop();
+            Console.WriteLine("d: " + watch.ElapsedMilliseconds);
+            watch.Reset();
+
             RC.ClearColor = new float4(0.5f, 1.0f, 0.5f, 1);
 
             // load meshes
             watch.Start();
 
-            var useLFG = false;
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if (useLFG)
-            {
-                var meshgeo = new Geometry();
-                meshgeo.LoadAsset("Assets/performancetestmesh.obj.model");
-                meshgeo._SmoothingAngle = 89.0;
-
-                Console.WriteLine("Load 10000 vertices: " + watch.ElapsedMilliseconds);
-                watch.Stop();
-                watch.Reset();
-                watch.Start();
-                Mesh1000verts = meshgeo.ToMesh();
-            }
-            else
-            {
                 var meshgeo = MeshReader.ReadWavefrontObj(new StreamReader(@"Assets/performancetestmesh.obj.model"));
 
-                Console.WriteLine("Load 10000 vertices: " + watch.ElapsedMilliseconds);
                 watch.Stop();
+                Console.WriteLine("e: " + watch.ElapsedMilliseconds);
+
                 watch.Reset();
                 watch.Start();
+
+                meshgeo.CreateNormals(80 * 3.141592 / 180.0);
+
+                watch.Stop();
+                Console.WriteLine("f: " + watch.ElapsedMilliseconds);
+                watch.Reset();
+                watch.Start();
+
                 Mesh1000verts = meshgeo.ToMesh();              
-            }
 
             //Console.WriteLine("Mesh vertex count: " + Mesh1000verts.Vertices.Length);
-            Console.WriteLine("Parse Geometry: " + watch.ElapsedMilliseconds);
+            Console.WriteLine("g: " + watch.ElapsedMilliseconds);
             
-            //Environment.Exit(0);
+            Environment.Exit(0);
 
             watch.Stop();
             watch.Reset();
@@ -185,7 +247,7 @@ namespace Examples.MageExample
 
         public static void Main()
         {
-            //maintime = DateTime.Now.Ticks;
+            maintime = DateTime.Now.Ticks;
             var app = new MageExample();
             app.Run();
         }

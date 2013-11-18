@@ -175,9 +175,6 @@ namespace Fusee.Engine
                 lineNumber++;
             }
 
-            if (!g.HasNormals)
-                g.CreateNormals(80 * 3.141592 / 180.0);
-
             return g;
         }
 
