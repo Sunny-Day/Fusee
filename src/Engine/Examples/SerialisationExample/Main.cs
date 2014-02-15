@@ -10,7 +10,7 @@ namespace Examples.SerialisationExample
     public class SerialisationExample : RenderCanvas
     {
         private MySerializer _ser;
-        private Stopwatch _watch; 
+        private Stopwatch _watch;
         private Mesh _currentMesh;
 
         private ShaderProgram _spColor;
@@ -27,7 +27,7 @@ namespace Examples.SerialisationExample
             _spColor = MoreShaders.GetDiffuseColorShader(RC);
             _colorParam = _spColor.GetShaderParam("color");
             RC.SetShader(_spColor);
-            RC.SetShaderParam(_colorParam, new float4(1,0,0,1));
+            RC.SetShaderParam(_colorParam, new float4(1, 0, 0, 1));
             _watch = new Stopwatch();
             _ser = new MySerializer();
             Debug.WriteLine("Serialisation Example started. \nPress F1 to load Mesh using MeshReader. \nPress F2 to load Mesh using Protobuf.");
@@ -44,7 +44,7 @@ namespace Examples.SerialisationExample
         {
             // is called once a frame
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
-            if(Input.Instance.IsKeyDown(KeyCodes.F1) && !_isCurrentlyLoading)
+            if (Input.Instance.IsKeyDown(KeyCodes.F1) && !_isCurrentlyLoading)
             {
                 LoadMeshWithObjParser();
             }
@@ -53,9 +53,9 @@ namespace Examples.SerialisationExample
                 LoadMeshWithProtobuf();
             }
 
-            if(_currentMesh!=null)
+            if (_currentMesh != null)
             {
-                _smoothRotation += RotationSpeed*(float)Time.Instance.DeltaTime;
+                _smoothRotation += RotationSpeed * (float)Time.Instance.DeltaTime;
                 RC.ModelView = float4x4.CreateRotationY(_smoothRotation) * _mtxCam;
                 RC.Render(_currentMesh);
             }
@@ -90,7 +90,7 @@ namespace Examples.SerialisationExample
                 _currentMesh = _ser.Deserialize(file, null, typeof(Mesh)) as Mesh;
             }
             _watch.Stop();
-            Debug.WriteLine("Mesh loaded using protobuf in "+_watch.ElapsedMilliseconds+"ms");
+            Debug.WriteLine("Mesh loaded using protobuf in " + _watch.ElapsedMilliseconds + "ms");
             _watch.Reset();
             _isCurrentlyLoading = false;
         }
