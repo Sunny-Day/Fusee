@@ -8,6 +8,7 @@
     <Exec Command="cp -au $(OutputPath)../../*.dll $(OutputPath)" />
     <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SFML/*.so* $(OutputPath)" />
     <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SharpFont/*.so* $(OutputPath)" />
+    <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SharpFont/*.config* $(OutputPath)" />
     <Exec Command="cp -au $(SolutionDir)ExternalBinaries/JSIL/Scripts/*.js* $(OutputPath)../../WebGL/Scripts" />
   </Target> 
   
