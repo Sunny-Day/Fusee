@@ -1,12 +1,12 @@
 using Fusee.Engine;
-using Fusee.SceneManagement;
 using Fusee.Math;
 
 namespace Examples.InputDevices
 {
+    [FuseeApplication(Name = "InputDevices",
+        Description = "A sample application showing FUSEE's support for controller and other input devices.")]
     public class InputDevices : RenderCanvas
     {
-
         private Mesh _meshTea;
 
         private ShaderProgram _spColor;

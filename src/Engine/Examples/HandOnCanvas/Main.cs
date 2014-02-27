@@ -4,6 +4,8 @@ using Fusee.Math;
 
 namespace Examples.HandOnCanvas
 {
+    [FuseeApplication(Name = "HandOnCanvas",
+        Description = "A sample application using a toon shader to show FUSEE's RenderState system.")]
     public class HandOnCanvas : RenderCanvas
     {
         // angle variables

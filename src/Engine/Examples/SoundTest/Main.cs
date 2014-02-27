@@ -5,7 +5,7 @@ using Fusee.Math;
 
 namespace Examples.SoundTest
 {
-    [FuseeApplication(Name = "Sound Test", Description = "The name of this example says it all...")]
+    [FuseeApplication(Name = "Sound Test", Description = "A sample application showing FUSEE's audio support.")]
     public class SoundTest : RenderCanvas
     {
         protected Mesh Mesh;
@@ -111,7 +111,7 @@ namespace Examples.SoundTest
             var mtxRot = float4x4.CreateRotationY(_angleHorz)*float4x4.CreateRotationX(0);
             var mtxCam = float4x4.LookAt(0, 200, 400, 0, 50, 0, 0, 1, 0);
 
-            RC.ModelView = float4x4.Scale(200,200,200)*mtxRot*float4x4.CreateTranslation(-100, 0, 0)*mtxCam;
+            RC.ModelView = float4x4.Scale(200, 200, 200)*mtxRot*float4x4.CreateTranslation(-100, 0, 0)*mtxCam;
             RC.Render(Mesh);
 
             Present();
