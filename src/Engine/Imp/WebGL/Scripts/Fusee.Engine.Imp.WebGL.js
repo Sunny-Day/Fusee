@@ -609,20 +609,24 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
 
     $.Method({ Static: false, Public: true }, "CreateTexture",
         new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.ITexture"), [$fuseeCommon.TypeRef("Fusee.Engine.ImageData")]),
-        function CreateTexture(img) {
+        function CreateTexture(img, repeat) {
             var ubyteView = new Uint8Array(img.PixelData);
 
             var glTexOb = this.gl.createTexture();
             this.gl.bindTexture(this.gl.TEXTURE_2D, glTexOb);
+
             this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
+
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, img.Width, img.Height, 0,
                 this.gl.RGBA, this.gl.UNSIGNED_BYTE, ubyteView);
 
             this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
             this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 
-            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, (repeat) ? this.gl.REPEAT : this.gl.CLAMP_TO_EDGE);
+            this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, (repeat) ? this.gl.REPEAT : this.gl.CLAMP_TO_EDGE);
+
+            this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
 
             var texRet = new $WebGLImp.Fusee.Engine.Texture();
             texRet.handle = glTexOb;
@@ -743,8 +747,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
                     canvas.width = bmpWidth;
                     canvas.height = bmpRows;
 
-                    var renderedGlyph = opentype.glyphToPath(glyph, -glyph.xMin, glyph.yMax, fontScale);
-                    renderedGlyph.draw(ctx);
+                    glyph.draw(ctx, -xMin, yMax, fontSize);
 
                     var bitmap = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     var alpha = new Uint8Array(canvas.width * canvas.height);
@@ -761,11 +764,11 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
                 texAtlas.CharInfo[i].AdvanceX = glyph.advanceWidth * fontScale;
                 texAtlas.CharInfo[i].AdvanceY = 0;
 
-                texAtlas.CharInfo[i].BitmapW = (glyph.xMax - glyph.xMin) * fontScale;
-                texAtlas.CharInfo[i].BitmapH = (glyph.yMax - glyph.yMin) * fontScale + 2;
+                texAtlas.CharInfo[i].BitmapW = xMax - xMin;
+                texAtlas.CharInfo[i].BitmapH = yMax - yMin;
 
-                texAtlas.CharInfo[i].BitmapL = glyph.xMin * fontScale;
-                texAtlas.CharInfo[i].BitmapT = glyph.yMax * fontScale;
+                texAtlas.CharInfo[i].BitmapL = xMin;
+                texAtlas.CharInfo[i].BitmapT = yMax;
 
                 texAtlas.CharInfo[i].TexOffX = offX / maxWidth;
                 texAtlas.CharInfo[i].TexOffY = offY / potH;
