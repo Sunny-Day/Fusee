@@ -34,10 +34,20 @@
         /// <returns>An instance of <see cref="ShaderProgram"/> to render a color with diffuse lighting.</returns>
         public static ShaderProgram GetDiffuseColorShader(RenderContext rc)
         {
-            var spSimple = rc.CreateShader(VsSimpleColor, PsSimpleColor);
+            var spSimple = rc.CreateShader(VsDiffuseColor, PsDiffuseColor);
             return spSimple;
         }
 
+        /// <summary>
+        /// Creates a simple color shader in RenderContext.
+        /// </summary>
+        /// <param name="rc">RenderContext.</param>
+        /// <returns>An instance of <see cref="ShaderProgram"/> to render a color without lightning.</returns>
+        public static ShaderProgram GetSimpleColorShader(RenderContext rc)
+        {
+            var spSimple = rc.CreateShader(VsSimpleColor, PsSimpleColor);
+            return spSimple;
+        }
 
         /// <summary>
         /// Creates a specular texture shader in RenderContext.
@@ -200,9 +210,9 @@
             void CalcSpotLight(vec4 difColor, vec4 ambColor, vec3 position, vec3 direction, float angle, inout vec4 intensity) {
                 intensity += ambColor;
                 vec3 pos = position - vViewPos;
-                float alpha = acos(dot(normalize(pos), normalize(-direction)));
+                float alpha = dot(normalize(pos), normalize(direction));
 
-                if(alpha < angle){
+                if (alpha < angle){
                     intensity += max(dot(normalize(pos),normalize(vNormal)),0.0) * difColor;  
                 }     
             }
@@ -422,9 +432,9 @@
             void CalcSpotLight(vec4 difColor, vec4 ambColor, vec4 specColor, vec3 position, vec3 direction, float angle, inout vec4 intensity){
                 intensity += ambColor;
                 vec3 pos = position - vViewPos;
-                float alpha = dot(normalize(pos), normalize(-direction));
+                float alpha = dot(normalize(pos), normalize(direction));
 
-                if(alpha > angle){
+                if (alpha < angle) {
                     intensity += max(dot(normalize(pos),normalize(vNormal)),0.0) * difColor; 
                     if(specularLevel != 0.0){
                         vec3 lightVector = normalize(-pos);  
@@ -648,7 +658,7 @@
                 intensity += max(dot(normalize(pos),normalize(bumpNormal)),0.0) * difColor;
 
                 if(specularLevel != 0.0){
-                    vec3 lightVector = normalize(-pos);  
+                    vec3 lightVector = normalize(-pos);
                     vec3 r = normalize(reflect(lightVector, normalize(bumpNormal)));
                     float s = pow(max(dot(r, vec3(0,0,1.0)), 0.0), specularLevel) * shininess;
                     intensity += specColor * s;
@@ -661,9 +671,9 @@
                 vec3 bumpNormal = vNormal + normalize(texture2D(normalTex, vUV).rgb * maxVariance - minVariance);
                 intensity += ambColor;
                 vec3 pos = position - vViewPos;
-                float alpha = acos(dot(normalize(pos), normalize(-direction)));
+                float alpha = dot(normalize(pos), normalize(direction));
 
-                if(alpha < angle){
+                if(alpha < angle) {
                     intensity += max(dot(normalize(pos),normalize(bumpNormal)),0.0) * difColor; 
                     if(specularLevel != 0.0){
                         vec3 lightVector = normalize(-pos);  
@@ -752,7 +762,7 @@
                 gl_FragColor = texture2D(texture1, vUV) * endIntensity; 
             }";
 
-        private const string VsSimpleColor = @"
+        private const string VsDiffuseColor = @"
             attribute vec3 fuVertex;
             attribute vec3 fuNormal;       
         
@@ -767,7 +777,7 @@
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
             }";
 
-        private const string PsSimpleColor = @"
+        private const string PsDiffuseColor = @"
             #ifdef GL_ES
                 precision highp float;
             #endif    
@@ -778,6 +788,29 @@
             void main()
             {             
                 gl_FragColor = max(dot(vec3(0,0,1),normalize(vNormal)), 0.1) * color;
+            }";
+
+        private const string VsSimpleColor = @"
+            attribute vec3 fuVertex;
+
+            uniform mat4 FUSEE_MVP;
+            uniform mat4 FUSEE_ITMV;
+
+            void main()
+            {
+                gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
+            }";
+
+        private const string PsSimpleColor = @"
+            #ifdef GL_ES
+                precision highp float;
+            #endif    
+  
+            uniform vec4 color;
+
+            void main()
+            {             
+                gl_FragColor = color;
             }";
     }
 }
