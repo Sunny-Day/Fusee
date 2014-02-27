@@ -384,7 +384,7 @@ namespace Fusee.Engine
         /// The 4x4 projection matrix applied to view coordinates yielding clip space coordinates.
         /// </value>
         /// <remarks>
-        /// View coordinates are the result of the ModelView matrix multiplied to the geometry (<see cref="Fusee.Engine.RenderContext.ModelView"/>).
+        /// View coordinates are the result of the ModelView matrix multiplied to the geometry.
         /// The coordinate system of the view space has its origin in the camera center with the z axis aligned to the viewing direction, and the x- and
         /// y axes aligned to the viewing plane. Still, no projection from 3d space to the viewing plane has been performed. This is done by multiplying
         /// view coordinate geometry wihth the projection matrix. Typically, the projection matrix either performs a parallel projection or a perspective
@@ -1048,7 +1048,20 @@ namespace Fusee.Engine
             }
         }
 
-
+        /// <summary>
+        /// Sets the state of the renderer.
+        /// </summary>
+        /// <param name="renderState">State of the renderer.</param>
+        /// <param name="value">The value.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// value
+        /// or
+        /// value
+        /// or
+        /// value
+        /// or
+        /// renderState
+        /// </exception>
         public void SetRenderState(RenderState renderState, uint value)
         {
             switch (renderState)
@@ -1221,6 +1234,18 @@ namespace Fusee.Engine
             }
         }
 
+        /// <summary>
+        /// Gets the state of the renderer.
+        /// </summary>
+        /// <param name="renderState">State of the renderer.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// pm;Value  + ((PolygonMode)pm) +  not handled
+        /// or
+        /// depFunc;Value  + ((DepthFunction)depFunc) +  not handled
+        /// or
+        /// renderState
+        /// </exception>
         public uint GetRenderState(RenderState renderState)
         {
             switch (renderState)

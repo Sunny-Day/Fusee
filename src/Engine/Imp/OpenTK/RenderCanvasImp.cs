@@ -271,7 +271,6 @@ namespace Fusee.Engine
             get { return _width; }
             set
             {
-                _gameWindow.Width = value;
                 _width = value;
                 ResizeWindow();
             }
@@ -288,7 +287,6 @@ namespace Fusee.Engine
             get { return _height; }
             set
             {
-                _gameWindow.Height = value;
                 _height = value;
                 ResizeWindow();
             }
@@ -409,7 +407,7 @@ namespace Fusee.Engine
             var scHeightH = Screen.PrimaryScreen.Bounds.Height / 2;
             var scWidthH = Screen.PrimaryScreen.Bounds.Width / 2;
 
-            _gameWindow.Bounds = new System.Drawing.Rectangle(scWidthH - widthH, scHeightH - heightH, _width, _height);
+            _gameWindow.ClientRectangle = new System.Drawing.Rectangle(scWidthH - widthH, scHeightH - heightH, _width, _height);
         }
 
         /// <summary>
