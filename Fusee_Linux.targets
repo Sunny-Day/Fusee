@@ -7,6 +7,7 @@
     <MakeDir Directories="$(OutputPath)" Condition="!Exists('$(OutputPath)')" />
     <Exec Command="cp -au $(OutputPath)../../*.dll $(OutputPath)" />
     <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SFML/*.so* $(OutputPath)" />
+    <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SFML/*.config* $(OutputPath)" />
     <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SharpFont/*.so* $(OutputPath)" />
     <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SharpFont/*.config* $(OutputPath)" />
     <Exec Command="cp -au $(SolutionDir)ExternalBinaries/JSIL/Scripts/*.js* $(OutputPath)../../WebGL/Scripts" />
@@ -27,8 +28,8 @@
     <Exec Command="cp -au $(OutputPath)../../WebGL/Styles/*.* $(OutputPath)Web/Assets/Styles" />
     <Exec Command="cp -au $(OutputPath)../../WebAudio/*.* $(OutputPath)Web/Assets/Scripts" />
     <Exec Command="cp -au $(OutputPath)../../WebNet/*.* $(OutputPath)Web/Assets/Scripts" />
-	<Exec Command="cp -au $(OutputPath)../../WebInput/*.* $(OutputPath)Web/Assets/Scripts" />
-	<Exec Command="cp -au $(OutputPath)../../WebXirkit/*.* $(OutputPath)Web/Assets/Scripts" />
+    <Exec Command="cp -au $(OutputPath)../../WebInput/*.* $(OutputPath)Web/Assets/Scripts" />
+    <Exec Command="cp -au $(OutputPath)../../WebXirkit/*.* $(OutputPath)Web/Assets/Scripts" />
 
     <Message Importance="High" Text="### PostBuildEvent $(TargetName): Creating default HTML file ###" />
     <Exec ContinueOnError="true" Timeout="120000" Command='mono "$(SolutionDir)ExternalBinaries/JSIL/Compiler/fuHTMLGen.exe" "$(OutputPath)" "$(OutputPath)Web/" "$(TargetPath)"' />
