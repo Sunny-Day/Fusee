@@ -1,16 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <!-- BeforeBuild on Non-Windows -->
+  <!--Differentiate between Mac OS X and Linux -->
+  <PropertyGroup>
+    <CopyArg>-au</CopyArg>
+    <FileExt>so</FileExt>
+
+    <CopyArg Condition=" Exists ('/Library/Frameworks') ">-a</CopyArg>
+    <FileExt Condition=" Exists ('/Library/Frameworks') ">dylib</FileExt>
+  </PropertyGroup>
+
+  <!-- BeforeBuild on Linux -->
   <Target Name="BeforeBuild" Condition=" '$(OS)' != 'Windows_NT' ">
     <Message Importance="High" Text="### BeforeBuildEvent $(TargetName): Copying necessary files ###" />
     <MakeDir Directories="$(OutputPath)" Condition="!Exists('$(OutputPath)')" />
-    <Exec Command="cp -au $(OutputPath)../../*.dll $(OutputPath)" />
-    <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SFML/*.so* $(OutputPath)" />
-    <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SFML/*.config* $(OutputPath)" />
-    <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SharpFont/*.so* $(OutputPath)" />
-    <Exec Command="cp -au $(SolutionDir)ExternalBinaries/SharpFont/*.config* $(OutputPath)" />
-    <Exec Command="cp -au $(SolutionDir)ExternalBinaries/JSIL/Scripts/*.js* $(OutputPath)../../WebGL/Scripts" />
+    <Exec Command="cp $(CopyArg) $(OutputPath)../../*.dll $(OutputPath)" />
+    <Exec Command="cp $(CopyArg) $(SolutionDir)ExternalBinaries/SFML/*.$(FileExt)* $(OutputPath)" />
+    <Exec Command="cp $(CopyArg) $(SolutionDir)ExternalBinaries/SFML/*.config* $(OutputPath)" />
+    <Exec Command="cp $(CopyArg) $(SolutionDir)ExternalBinaries/SharpFont/*.$(FileExt)* $(OutputPath)" />
+    <Exec Command="cp $(CopyArg) $(SolutionDir)ExternalBinaries/SharpFont/*.config* $(OutputPath)" />
+    <Exec Command="cp $(CopyArg) $(SolutionDir)ExternalBinaries/JSIL/Scripts/*.js* $(OutputPath)../../WebGL/Scripts" />
   </Target> 
   
   <!--- AfterBuild on Non-Windows -->
@@ -24,12 +33,12 @@
     <Exec ContinueOnError="true" Timeout="120000" Command='mono "$(SolutionDir)ExternalBinaries/JSIL/Compiler/JSILc.exe" -o "$(OutputPath)Web/Assets/Scripts" "$(TargetPath)"' />
 
     <Message Importance="High" Text="### PostBuildEvent $(TargetName): Copying additional scripts/styles ###" />
-    <Exec Command="cp -au $(OutputPath)../../WebGL/Scripts/*.* $(OutputPath)Web/Assets/Scripts" />
-    <Exec Command="cp -au $(OutputPath)../../WebGL/Styles/*.* $(OutputPath)Web/Assets/Styles" />
-    <Exec Command="cp -au $(OutputPath)../../WebAudio/*.* $(OutputPath)Web/Assets/Scripts" />
-    <Exec Command="cp -au $(OutputPath)../../WebNet/*.* $(OutputPath)Web/Assets/Scripts" />
-    <Exec Command="cp -au $(OutputPath)../../WebInput/*.* $(OutputPath)Web/Assets/Scripts" />
-    <Exec Command="cp -au $(OutputPath)../../WebXirkit/*.* $(OutputPath)Web/Assets/Scripts" />
+    <Exec Command="cp $(CopyArg) $(OutputPath)../../WebGL/Scripts/*.* $(OutputPath)Web/Assets/Scripts" />
+    <Exec Command="cp $(CopyArg) $(OutputPath)../../WebGL/Styles/*.* $(OutputPath)Web/Assets/Styles" />
+    <Exec Command="cp $(CopyArg) $(OutputPath)../../WebAudio/*.* $(OutputPath)Web/Assets/Scripts" />
+    <Exec Command="cp $(CopyArg) $(OutputPath)../../WebNet/*.* $(OutputPath)Web/Assets/Scripts" />
+    <Exec Command="cp $(CopyArg) $(OutputPath)../../WebInput/*.* $(OutputPath)Web/Assets/Scripts" />
+    <Exec Command="cp $(CopyArg) $(OutputPath)../../WebXirkit/*.* $(OutputPath)Web/Assets/Scripts" />
 
     <Message Importance="High" Text="### PostBuildEvent $(TargetName): Creating default HTML file ###" />
     <Exec ContinueOnError="true" Timeout="120000" Command='mono "$(SolutionDir)ExternalBinaries/JSIL/Compiler/fuHTMLGen.exe" "$(OutputPath)" "$(OutputPath)Web/" "$(TargetPath)"' />
